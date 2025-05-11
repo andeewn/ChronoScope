@@ -108,19 +108,31 @@ function initializeSavingsCalculator() {
         const yearlyData = [];
         const chartLabels = [];
         const chartEndingBalances = [];
+        const chartEndingBalancesNoInterest = []; // For the 0% interest line
+
+        let currentBalanceNoInterest = initialSavings; // Separate balance for 0% interest calculation
 
         yearlyBreakdownTableBodyEl.innerHTML = ''; // Clear previous results
 
         for (let year = 1; year <= numberOfYears; year++) {
+            // Calculation with actual interest
             const startingBalanceForYear = currentBalance;
             const contributionsThisYear = monthlySavings * 12;
             const balanceAfterContributions = startingBalanceForYear + contributionsThisYear;
             const interestEarnedThisYear = balanceAfterContributions * annualInterestRate;
             const endingBalanceForYear = balanceAfterContributions + interestEarnedThisYear;
 
-            overallTotalContributions += contributionsThisYear;
-            overallTotalInterest += interestEarnedThisYear;
+            overallTotalContributions += contributionsThisYear; // This is the same for both scenarios
+            overallTotalInterest += interestEarnedThisYear; // Specific to actual interest scenario
             currentBalance = endingBalanceForYear;
+
+            // Calculation for 0% interest line
+            // startingBalanceForYearNoInterest is currentBalanceNoInterest
+            const contributionsThisYearNoInterest = monthlySavings * 12; // Same contributions
+            const balanceAfterContributionsNoInterest = currentBalanceNoInterest + contributionsThisYearNoInterest;
+            // const interestEarnedThisYearNoInterest = 0; // By definition for this line
+            const endingBalanceForYearNoInterest = balanceAfterContributionsNoInterest; // No interest added
+            currentBalanceNoInterest = endingBalanceForYearNoInterest;
 
             yearlyData.push({
                 year,
@@ -132,11 +144,12 @@ function initializeSavingsCalculator() {
 
             chartLabels.push(`Year ${year}`);
             chartEndingBalances.push(Math.round(endingBalanceForYear)); // Round for chart data
+            chartEndingBalancesNoInterest.push(Math.round(endingBalanceForYearNoInterest)); // Round for 0% interest line
 
             // Populate table row
             const row = yearlyBreakdownTableBodyEl.insertRow();
             row.insertCell().textContent = year;
-            row.insertCell().textContent = formatCurrency(startingBalanceForYear);
+            // row.insertCell().textContent = formatCurrency(startingBalanceForYear); // Removed Starting Balance
             row.insertCell().textContent = formatCurrency(contributionsThisYear);
             row.insertCell().textContent = formatCurrency(interestEarnedThisYear);
             row.insertCell().textContent = formatCurrency(endingBalanceForYear);
@@ -146,10 +159,12 @@ function initializeSavingsCalculator() {
         totalInterestEl.textContent = formatCurrency(overallTotalInterest);
         totalFutureValueEl.textContent = formatCurrency(currentBalance);
 
-        renderChart(chartLabels, chartEndingBalances.map(val => parseFloat(val))); // Ensure data is numbers for chart
+        renderChart(chartLabels, 
+                    chartEndingBalances.map(val => parseFloat(val)), 
+                    chartEndingBalancesNoInterest.map(val => parseFloat(val))); // Pass both datasets
     }
 
-    function renderChart(labels, data) {
+    function renderChart(labels, dataWithInterest, dataNoInterest) {
         if (savingsChartInstance) {
             savingsChartInstance.destroy();
         }
@@ -158,14 +173,26 @@ function initializeSavingsCalculator() {
             type: 'line',
             data: {
                 labels: labels,
-            datasets: [{
-                label: 'Savings Growth (kr)',
-                data: data,
-                borderColor: '#A2D2FF', // Pastel Blue
-                    backgroundColor: 'rgba(162, 210, 255, 0.2)', // Lighter, semi-transparent Pastel Blue
-                    tension: 0.1,
-                    fill: true
-                }]
+                datasets: [
+                    {
+                        label: 'Savings Growth (kr)', // Actual interest
+                        data: dataWithInterest,
+                        borderColor: '#A2D2FF', // Pastel Blue
+                        backgroundColor: 'rgba(144, 238, 144, 0.5)', // Light Green fill (semi-transparent) for area
+                        tension: 0.1,
+                        fill: 1, // Fill to dataset at index 1 (the 0% interest line)
+                        order: 0 
+                    },
+                    {
+                        label: 'Growth with 0% Interest (kr)', // 0% interest line
+                        data: dataNoInterest,
+                        borderColor: '#FFC8DD', // Pastel Pink
+                        backgroundColor: 'rgba(255, 200, 221, 0.1)', // Optional faint fill for this line itself
+                        tension: 0.1,
+                        fill: false, // This line itself does not fill, or fill to origin: 'origin'
+                        order: 1
+                    }
+                ]
             },
             options: {
                 responsive: true,

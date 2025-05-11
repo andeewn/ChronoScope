@@ -127,6 +127,12 @@ main {
     background-color: #F8FDFF; /* Off-white for alternate rows */
 }
 
+.chart-canvas-container {
+    position: relative; /* Needed for Chart.js responsiveness */
+    height: 400px; /* Explicit height for the chart container */
+    width: 100%;   /* Take full width of its parent (.chart-card) */
+}
+
 footer {
     background-color: #A2D2FF; /* Pastel Blue */
     color: white;
