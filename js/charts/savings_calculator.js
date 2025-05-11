@@ -109,8 +109,10 @@ function initializeSavingsCalculator() {
         const chartLabels = [];
         const chartEndingBalances = [];
         const chartEndingBalancesNoInterest = []; // For the 0% interest line
+        const cumulativeInterestByYear = []; // For tooltip display
 
         let currentBalanceNoInterest = initialSavings; // Separate balance for 0% interest calculation
+        let runningTotalInterestForTooltip = 0; // Accumulator for tooltip
 
         yearlyBreakdownTableBodyEl.innerHTML = ''; // Clear previous results
 
@@ -133,6 +135,10 @@ function initializeSavingsCalculator() {
             // const interestEarnedThisYearNoInterest = 0; // By definition for this line
             const endingBalanceForYearNoInterest = balanceAfterContributionsNoInterest; // No interest added
             currentBalanceNoInterest = endingBalanceForYearNoInterest;
+
+            // Accumulate interest for tooltip
+            runningTotalInterestForTooltip += interestEarnedThisYear;
+            cumulativeInterestByYear.push(Math.round(runningTotalInterestForTooltip));
 
             yearlyData.push({
                 year,
@@ -161,10 +167,11 @@ function initializeSavingsCalculator() {
 
         renderChart(chartLabels, 
                     chartEndingBalances.map(val => parseFloat(val)), 
-                    chartEndingBalancesNoInterest.map(val => parseFloat(val))); // Pass both datasets
+                    chartEndingBalancesNoInterest.map(val => parseFloat(val)),
+                    cumulativeInterestByYear); // Pass cumulative interest data
     }
 
-    function renderChart(labels, dataWithInterest, dataNoInterest) {
+    function renderChart(labels, dataWithInterest, dataNoInterest, cumulativeInterestData) {
         if (savingsChartInstance) {
             savingsChartInstance.destroy();
         }
@@ -213,18 +220,23 @@ function initializeSavingsCalculator() {
                         callbacks: {
                             label: function(context) {
                                 let label = context.dataset.label || ''; // e.g., "Savings Growth (kr)"
-                                if (label) {
-                                    // Check if the label already contains (kr)
-                                    if (!label.includes('(kr)')) {
-                                       label = label.replace('($)', '(kr)'); // Fallback if $ was somehow in label
+                                let tooltipLabel = context.dataset.label || '';
+                                if (tooltipLabel) {
+                                    if (!tooltipLabel.includes('(kr)')) {
+                                        tooltipLabel = tooltipLabel.replace('($)', '(kr)');
                                     }
-                                     label += ': ';
+                                    tooltipLabel += ': ';
                                 }
                                 if (context.parsed.y !== null) {
-                                    // Format tooltip values
-                                    label += formatCurrency(context.parsed.y);
+                                    tooltipLabel += formatCurrency(context.parsed.y);
                                 }
-                                return label;
+
+                                // If hovering the main dataset (index 0), add cumulative interest
+                                if (context.datasetIndex === 0 && cumulativeInterestData && cumulativeInterestData[context.dataIndex] !== undefined) {
+                                    const interestSoFar = cumulativeInterestData[context.dataIndex];
+                                    tooltipLabel += `\nInterest Earned: ${formatCurrency(interestSoFar)}`;
+                                }
+                                return tooltipLabel;
                             }
                         }
                     }
