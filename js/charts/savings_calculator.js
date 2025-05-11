@@ -10,6 +10,7 @@ if (typeof Chart === 'undefined') {
 function initializeSavingsCalculator() {
     const initialSavingsEl = document.getElementById('initialSavings');
     const monthlySavingsEl = document.getElementById('monthlySavings');
+    const currentAgeEl = document.getElementById('currentAge'); // New age input
     const annualInterestRateEl = document.getElementById('annualInterestRate');
     const numberOfYearsEl = document.getElementById('numberOfYears');
     const calculateBtn = document.getElementById('calculateSavingsBtn');
@@ -87,11 +88,20 @@ function initializeSavingsCalculator() {
     function calculateAndDisplaySavings() {
         const initialSavings = parseInputFormattedValue(initialSavingsEl.value);
         const monthlySavings = parseInputFormattedValue(monthlySavingsEl.value);
-        const annualInterestRate = parseFloat(annualInterestRateEl.value) / 100; // This remains number input
-        const numberOfYears = parseInt(numberOfYearsEl.value); // This remains number input
+        const currentAgeInput = currentAgeEl.value.trim();
+        let currentAge = null;
+        if (currentAgeInput !== "") {
+            currentAge = parseInt(currentAgeInput, 10);
+            if (isNaN(currentAge) || currentAge < 0) {
+                alert('Please enter a valid positive number for Current Age, or leave it empty.');
+                return; // Or treat as null and proceed
+            }
+        }
+        const annualInterestRate = parseFloat(annualInterestRateEl.value) / 100; 
+        const numberOfYears = parseInt(numberOfYearsEl.value); 
 
         if (isNaN(initialSavings) || isNaN(monthlySavings) || isNaN(annualInterestRate) || isNaN(numberOfYears) || initialSavings < 0 || monthlySavings < 0 || annualInterestRate < 0 || numberOfYears <= 0) {
-            alert('Please enter valid numbers for all fields. Initial and Monthly savings cannot be negative. Years must be positive. Interest rate cannot be negative.');
+            alert('Please enter valid numbers for Initial Savings, Monthly Savings, Interest Rate, and Years. Savings and Interest cannot be negative. Years must be positive.');
             return;
         }
         // Allow monthly savings to be 0 if initial savings is present
@@ -148,7 +158,11 @@ function initializeSavingsCalculator() {
                 endingBalance: endingBalanceForYear
             });
 
-            chartLabels.push(`Year ${year}`);
+            let yearLabel = `Year ${year}`;
+            if (currentAge !== null) {
+                yearLabel += ` (Age ${currentAge + year})`; 
+            }
+            chartLabels.push(yearLabel);
             chartEndingBalances.push(Math.round(endingBalanceForYear)); // Round for chart data
             chartEndingBalancesNoInterest.push(Math.round(endingBalanceForYearNoInterest)); // Round for 0% interest line
 
@@ -247,7 +261,7 @@ function initializeSavingsCalculator() {
     
     // Perform an initial calculation if default values are present and valid
     // Also re-format input field values on load
-    [initialSavingsEl, monthlySavingsEl].forEach(el => {
+    [initialSavingsEl, monthlySavingsEl].forEach(el => { // currentAgeEl is not formatted this way
         el.value = formatForInputDisplay(el.value);
     });
     if (initialSavingsEl.value && monthlySavingsEl.value && annualInterestRateEl.value && numberOfYearsEl.value) {
