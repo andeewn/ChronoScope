@@ -2,6 +2,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load the savings calculator HTML and its specific JavaScript
     loadChart('charts/savings_calculator.html', 'savingsCalculatorChartContainer', 'js/charts/savings_calculator.js');
     
+    // Load the expenses calculator HTML and its specific JavaScript
+    loadChart('charts/expenses_calculator.html', 'expensesCalculatorChartContainer', 'js/charts/expenses_calculator.js');
+
     // Example for adding another chart in the future:
     // loadChart('charts/another_chart.html', 'anotherChartPlaceholderId', 'js/charts/another_chart.js');
 });

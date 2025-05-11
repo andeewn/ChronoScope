@@ -1,0 +1,331 @@
+// This script will be loaded after charts/expenses_calculator.html is injected into index.html
+
+if (typeof Chart === 'undefined') {
+    console.error('Chart.js is not loaded. Make sure it is included in index.html.');
+    // Potentially load Chart.js dynamically here if not present, or show a more user-friendly message.
+} else {
+    initializeExpensesCalculator();
+}
+
+function initializeExpensesCalculator() {
+    const expenseNameEl = document.getElementById('expenseName');
+    const expenseCostEl = document.getElementById('expenseCost');
+    const expenseOccurrenceEl = document.getElementById('expenseOccurrence');
+    const addExpenseBtn = document.getElementById('addExpenseBtn');
+    
+    const projectionYearsEl = document.getElementById('projectionYears');
+    const calculateProjectionBtn = document.getElementById('calculateProjectionBtn');
+
+    const currentExpensesTableBodyEl = document.getElementById('currentExpensesTableBody');
+    const totalListedAnnualExpensesEl = document.getElementById('totalListedAnnualExpenses');
+    
+    const expensesChartCanvas = document.getElementById('expensesChart');
+    const expensesYearlyBreakdownTableBodyEl = document.getElementById('expensesYearlyBreakdownTableBody');
+    let expensesChartInstance = null;
+
+    let expenses = []; // Array to store {id, name, cost, occurrence, annualCost}
+
+    // Check if elements are loaded, retry if not (robustness for dynamic content loading)
+    if (!addExpenseBtn || !calculateProjectionBtn || !expensesChartCanvas) {
+        console.warn("Expenses calculator elements not immediately found. Retrying in a moment...");
+        setTimeout(initializeExpensesCalculator, 150); // Retry initialization shortly
+        return;
+    }
+
+    // --- Reusable Helper Functions (adapted from savings_calculator.js) ---
+    function formatCurrency(number) {
+        const num = Number(number);
+        if (isNaN(num)) return '0 kr';
+        const roundedNum = Math.round(num);
+        return new Intl.NumberFormat('sv-SE').format(roundedNum) + ' kr';
+    }
+
+    function formatForInputDisplay(value) {
+        const num = parseInt(String(value).replace(/\s/g, ''), 10);
+        if (isNaN(num)) return '';
+        return new Intl.NumberFormat('sv-SE').format(num);
+    }
+
+    function parseInputFormattedValue(value) {
+        return parseFloat(String(value).replace(/\s/g, '').replace(',', '.')); // Handle comma as decimal if any
+    }
+
+    // Input formatting for expenseCostEl
+    expenseCostEl.addEventListener('input', (e) => {
+        const rawValue = e.target.value.replace(/\s/g, '');
+        if (/^\d*([.,]\d*)?$/.test(rawValue)) { // Allow digits and one decimal point/comma
+            const caretPosition = e.target.selectionStart;
+            const oldValueLength = e.target.value.length;
+            
+            // Temporarily remove formatting to correctly place caret
+            let unformattedOldValue = e.target.value.substring(0, caretPosition).replace(/\s/g, '');
+            
+            e.target.value = formatForInputDisplay(rawValue.split('.')[0]) + (rawValue.includes('.') ? '.' + rawValue.split('.')[1] : '');
+            e.target.value = formatForInputDisplay(rawValue.split(',')[0]) + (rawValue.includes(',') ? ',' + rawValue.split(',')[1] : '');
+
+
+            // Attempt to restore caret position more accurately
+            let newFormattedValue = e.target.value;
+            let newCaretPos = caretPosition;
+            // This is tricky with dynamic formatting. A simpler approach might be needed if issues persist.
+            // For now, basic adjustment:
+            if (newFormattedValue.length > oldValueLength) {
+                newCaretPos += (newFormattedValue.length - oldValueLength);
+            } else if (newFormattedValue.length < oldValueLength) {
+                newCaretPos -= (oldValueLength - newFormattedValue.length);
+            }
+             // Ensure caret doesn't go out of bounds
+            newCaretPos = Math.max(0, Math.min(newCaretPos, newFormattedValue.length));
+
+            // Count spaces before original caret
+            let spacesBeforeOldCaret = 0;
+            for(let i=0; i < caretPosition; i++) {
+                if(e.target.value[i] === ' ') spacesBeforeOldCaret++;
+            }
+            
+            // Count spaces in new value up to the length of unformatted old value
+            let spacesInNewUpToOldLength = 0;
+            let currentLength = 0;
+            let newPosCandidate = 0;
+            for(let i=0; i < newFormattedValue.length && currentLength < unformattedOldValue.length; i++) {
+                if(newFormattedValue[i] !== ' ') currentLength++;
+                if(newFormattedValue[i] === ' ') spacesInNewUpToOldLength++;
+                newPosCandidate = i + 1;
+            }
+            
+            e.target.setSelectionRange(newPosCandidate, newPosCandidate);
+
+
+        } else {
+            e.target.value = formatForInputDisplay(rawValue.replace(/[^\d]/g, '')); // Remove non-digits
+        }
+    });
+    expenseCostEl.addEventListener('blur', (e) => {
+        const numericValue = parseInputFormattedValue(e.target.value);
+        if (!isNaN(numericValue)) {
+            e.target.value = formatForInputDisplay(Math.round(numericValue)); // Round to whole number on blur
+        } else {
+            e.target.value = '';
+        }
+    });
+     if(expenseCostEl.value) expenseCostEl.value = formatForInputDisplay(expenseCostEl.value);
+
+
+    // --- Event Listeners ---
+    addExpenseBtn.addEventListener('click', handleAddExpense);
+    calculateProjectionBtn.addEventListener('click', calculateAndDisplayProjection);
+    currentExpensesTableBodyEl.addEventListener('click', handleDeleteExpense);
+
+    // --- Core Functions ---
+    function handleAddExpense() {
+        const name = expenseNameEl.value.trim();
+        const costString = expenseCostEl.value;
+        const occurrence = expenseOccurrenceEl.value;
+
+        if (!name) {
+            alert('Please enter an expense name.');
+            expenseNameEl.focus();
+            return;
+        }
+        const cost = parseInputFormattedValue(costString);
+        if (isNaN(cost) || cost <= 0) {
+            alert('Please enter a valid positive cost for the expense.');
+            expenseCostEl.focus();
+            return;
+        }
+
+        const annualCost = calculateAnnualCost(cost, occurrence);
+        const newExpense = {
+            id: Date.now(), // Simple unique ID
+            name: name,
+            cost: cost,
+            occurrence: occurrence,
+            annualCost: annualCost
+        };
+        expenses.push(newExpense);
+
+        updateCurrentExpensesDisplay();
+        expenseNameEl.value = '';
+        expenseCostEl.value = '';
+        expenseOccurrenceEl.value = 'monthly'; // Reset to default
+        expenseNameEl.focus();
+        
+        // Optionally, immediately recalculate projection if years are set
+        // if (parseInt(projectionYearsEl.value) > 0) {
+        //     calculateAndDisplayProjection();
+        // }
+    }
+
+    function calculateAnnualCost(cost, occurrence) {
+        switch (occurrence) {
+            case 'daily': return cost * 365;
+            case 'weekly': return cost * 52;
+            case 'monthly': return cost * 12;
+            case 'quarterly': return cost * 4;
+            case 'yearly': return cost;
+            default: return 0;
+        }
+    }
+
+    function updateCurrentExpensesDisplay() {
+        currentExpensesTableBodyEl.innerHTML = ''; // Clear existing rows
+        let totalAnnual = 0;
+        if (expenses.length === 0) {
+            const row = currentExpensesTableBodyEl.insertRow();
+            const cell = row.insertCell();
+            cell.colSpan = 5;
+            cell.textContent = 'No expenses added yet.';
+            cell.style.textAlign = 'center';
+        } else {
+            expenses.forEach(exp => {
+                const row = currentExpensesTableBodyEl.insertRow();
+                row.insertCell().textContent = exp.name;
+                row.insertCell().textContent = formatCurrency(exp.cost).replace(' kr', ''); // Cost per occurrence
+                row.insertCell().textContent = exp.occurrence.charAt(0).toUpperCase() + exp.occurrence.slice(1);
+                row.insertCell().textContent = formatCurrency(exp.annualCost).replace(' kr', '');
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = 'Remove';
+                removeBtn.classList.add('remove-expense-btn'); // For styling if needed
+                removeBtn.dataset.id = exp.id;
+                row.insertCell().appendChild(removeBtn);
+                totalAnnual += exp.annualCost;
+            });
+        }
+        totalListedAnnualExpensesEl.textContent = formatCurrency(totalAnnual);
+    }
+
+    function handleDeleteExpense(event) {
+        if (event.target.classList.contains('remove-expense-btn')) {
+            const expenseIdToRemove = parseInt(event.target.dataset.id);
+            expenses = expenses.filter(exp => exp.id !== expenseIdToRemove);
+            updateCurrentExpensesDisplay();
+            // If chart/projection exists, good idea to recalculate or clear it
+            if (expensesChartInstance || expensesYearlyBreakdownTableBodyEl.innerHTML !== '') {
+                 calculateAndDisplayProjection(); // Recalculate if something was projected
+            }
+        }
+    }
+
+    function calculateAndDisplayProjection() {
+        const years = parseInt(projectionYearsEl.value);
+        if (isNaN(years) || years <= 0) {
+            alert('Please enter a valid positive number of years for projection.');
+            projectionYearsEl.focus();
+            // Clear previous projection if years are invalid
+            if (expensesChartInstance) expensesChartInstance.destroy();
+            expensesYearlyBreakdownTableBodyEl.innerHTML = '';
+            return;
+        }
+        if (expenses.length === 0) {
+            alert('Please add at least one expense before calculating a projection.');
+            // Clear previous projection if no expenses
+            if (expensesChartInstance) expensesChartInstance.destroy();
+            expensesYearlyBreakdownTableBodyEl.innerHTML = '';
+            return;
+        }
+
+        updateExpensesChart(years);
+        updateExpensesYearlyBreakdownTable(years);
+    }
+    
+    const chartColors = [ // Predefined colors for chart datasets
+        'rgba(255, 99, 132, 0.7)', 'rgba(54, 162, 235, 0.7)', 'rgba(255, 206, 86, 0.7)',
+        'rgba(75, 192, 192, 0.7)', 'rgba(153, 102, 255, 0.7)', 'rgba(255, 159, 64, 0.7)',
+        'rgba(199, 199, 199, 0.7)', 'rgba(83, 102, 255, 0.7)', 'rgba(40, 159, 64, 0.7)',
+        'rgba(210, 99, 132, 0.7)' 
+    ];
+
+    function updateExpensesChart(projectionYears) {
+        const labels = [];
+        for (let i = 1; i <= projectionYears; i++) {
+            labels.push(`Year ${i}`);
+        }
+
+        const datasets = expenses.map((exp, index) => {
+            return {
+                label: exp.name,
+                data: Array(projectionYears).fill(exp.annualCost),
+                backgroundColor: chartColors[index % chartColors.length], // Cycle through colors
+                borderColor: chartColors[index % chartColors.length].replace('0.7', '1'), // Solid border
+                borderWidth: 1
+            };
+        });
+
+        if (expensesChartInstance) {
+            expensesChartInstance.destroy();
+        }
+        const ctx = expensesChartCanvas.getContext('2d');
+        expensesChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Annual Expense Projection'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += formatCurrency(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                        title: {
+                            display: true,
+                            text: 'Year'
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Total Annual Expenses (kr)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return formatCurrency(value).replace(' kr', ''); // Format Y-axis ticks
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function updateExpensesYearlyBreakdownTable(projectionYears) {
+        expensesYearlyBreakdownTableBodyEl.innerHTML = ''; // Clear previous results
+        
+        for (let year = 1; year <= projectionYears; year++) {
+            let totalExpensesThisYear = 0;
+            expenses.forEach(exp => {
+                totalExpensesThisYear += exp.annualCost; // Assumes expense is ongoing
+            });
+
+            const row = expensesYearlyBreakdownTableBodyEl.insertRow();
+            row.insertCell().textContent = year;
+            row.insertCell().textContent = formatCurrency(totalExpensesThisYear);
+        }
+    }
+    
+    // Initial call to set up the "Current Added Expenses" table (e.g., show "No expenses added yet.")
+    updateCurrentExpensesDisplay();
+}

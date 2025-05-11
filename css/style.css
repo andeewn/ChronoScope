@@ -77,6 +77,30 @@ main {
     outline: none;
 }
 
+.chart-card select {
+    width: 100%; /* Full width */
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #BDB2FF; /* Pastel Purple, same as inputs */
+    border-radius: 8px;
+    box-sizing: border-box;
+    background-color: white; /* Ensure background color for select */
+    color: #333; /* Text color */
+    appearance: none; /* Remove default system appearance */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.4-5.4-13z%22%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+    transition: border-color 0.3s ease;
+}
+
+.chart-card select:focus {
+    border-color: #A2D2FF; /* Pastel Blue on focus, same as inputs */
+    outline: none;
+}
+
 .chart-card button {
     background-color: #FFC8DD; /* Pastel Pink */
     color: white;
@@ -93,6 +117,19 @@ main {
 
 .chart-card button:hover {
     background-color: #FFAFCC; /* Lighter Pastel Pink */
+}
+
+.chart-card .remove-expense-btn {
+    background-color: #FF6B6B; /* A soft red */
+    color: white;
+    padding: 5px 10px; /* Smaller padding */
+    font-size: 12px; /* Smaller font */
+    border-radius: 5px;
+    /* Inherits other button properties like border: none, cursor: pointer, transition */
+}
+
+.chart-card .remove-expense-btn:hover {
+    background-color: #FF4C4C; /* Darker soft red on hover */
 }
 
 .chart-card .output-area p {

@@ -1,0 +1,74 @@
+<div class="chart-card">
+    <h2>Expenses Projection Calculator</h2>
+    <form id="expensesForm">
+        <div>
+            <label for="expenseName">Expense Name:</label>
+            <input type="text" id="expenseName" required>
+        </div>
+        <div>
+            <label for="expenseCost">Expense Cost (kr):</label>
+            <input type="text" id="expenseCost" required inputmode="numeric">
+        </div>
+        <div>
+            <label for="expenseOccurrence">Occurrence:</label>
+            <select id="expenseOccurrence" required>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly" selected>Monthly</option>
+                <option value="quarterly">Quarterly</option>
+                <option value="yearly">Yearly</option>
+            </select>
+        </div>
+        <button type="button" id="addExpenseBtn" style="margin-top: 10px;">Add Expense</button>
+        
+        <hr style="margin-top: 20px; margin-bottom: 20px;">
+
+        <div>
+            <label for="projectionYears">Number of Years for Projection:</label>
+            <input type="number" id="projectionYears" value="10" required min="1">
+        </div>
+        <button type="button" id="calculateProjectionBtn" style="margin-top: 10px;">Calculate Projection</button>
+    </form>
+
+    <div style="margin-top: 20px;">
+        <h3>Current Added Expenses</h3>
+        <table id="currentExpensesTable" class="results-table" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Cost (kr)</th>
+                    <th>Occurrence</th>
+                    <th>Annual Cost (kr)</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="currentExpensesTableBody">
+                <!-- Expenses will be populated by JavaScript -->
+            </tbody>
+        </table>
+        <p style="margin-top: 10px; font-weight: bold;">Total of currently listed annual expenses: <span id="totalListedAnnualExpenses">0 kr</span></p>
+    </div>
+
+    <div class="chart-canvas-container" style="margin-top: 20px;">
+        <canvas id="expensesChart"></canvas>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <h3>Year-by-Year Projection Breakdown</h3>
+        <table class="results-table" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Year</th>
+                    <th>Total Expenses This Year (kr)</th>
+                </tr>
+            </thead>
+            <tbody id="expensesYearlyBreakdownTableBody">
+                <!-- Data will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- The script tag is intentionally removed from here. 
+     It will be loaded by js/main.js after this HTML is injected.
+     The path in js/main.js will be effectively 'js/charts/expenses_calculator.js' 
+     relative to index.html -->
