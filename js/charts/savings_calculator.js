@@ -1,0 +1,217 @@
+// This script will be loaded after charts/savings_calculator.html is injected into index.html
+
+// Ensure Chart.js is loaded before trying to use it
+if (typeof Chart === 'undefined') {
+    console.error('Chart.js is not loaded. Make sure it is included in index.html.');
+} else {
+    initializeSavingsCalculator();
+}
+
+function initializeSavingsCalculator() {
+    const initialSavingsEl = document.getElementById('initialSavings');
+    const monthlySavingsEl = document.getElementById('monthlySavings');
+    const annualInterestRateEl = document.getElementById('annualInterestRate');
+    const numberOfYearsEl = document.getElementById('numberOfYears');
+    const calculateBtn = document.getElementById('calculateSavingsBtn');
+
+    const totalContributionsEl = document.getElementById('totalContributions');
+    const totalInterestEl = document.getElementById('totalInterest');
+    const totalFutureValueEl = document.getElementById('totalFutureValue');
+    const yearlyBreakdownTableBodyEl = document.getElementById('yearlyBreakdownTableBody');
+    const savingsChartCanvas = document.getElementById('savingsChart');
+    let savingsChartInstance = null;
+
+    if (!calculateBtn) {
+        // console.error('Calculate button not found. The script might be running before the HTML is fully loaded or the ID is incorrect.');
+        // This can happen if main.js loads this script before the HTML from fetch is fully processed.
+        // A common solution is to wrap this in a DOMContentLoaded or ensure script is loaded via onload callback.
+        // Since main.js now loads this script with an onload, this should be less of an issue.
+        // We can add a small delay or a more robust check if elements are not found.
+        // For now, let's assume main.js handles the timing.
+        // If elements are still not found, it means the IDs in savings_calculator.html are different.
+        console.warn("Savings calculator elements not immediately found. This might be a timing issue or ID mismatch. Retrying in a moment...");
+        setTimeout(initializeSavingsCalculator, 100); // Retry initialization shortly
+        return;
+    }
+    
+    calculateBtn.addEventListener('click', calculateAndDisplaySavings);
+
+    // Helper function for OUTPUT currency formatting (e.g., 1 234 567 kr)
+    function formatCurrency(number) {
+        const num = Number(number);
+        if (isNaN(num)) return '0 kr'; // Handle potential NaN inputs gracefully
+        const roundedNum = Math.round(num);
+        // 'sv-SE' uses space as thousand separator.
+        const formattedInteger = new Intl.NumberFormat('sv-SE').format(roundedNum); 
+        return `${formattedInteger} kr`;
+    }
+
+    // Helper function to format number for INPUT field display (e.g., 1 234 567)
+    function formatForInputDisplay(value) {
+        const num = parseInt(String(value).replace(/\s/g, ''), 10);
+        if (isNaN(num)) return '';
+        return new Intl.NumberFormat('sv-SE').format(num);
+    }
+
+    // Helper function to parse formatted INPUT value to number
+    function parseInputFormattedValue(value) {
+        return parseFloat(String(value).replace(/\s/g, ''));
+    }
+
+    // Add event listeners for input formatting
+    [initialSavingsEl, monthlySavingsEl].forEach(el => {
+        el.addEventListener('input', (e) => {
+            const rawValue = e.target.value.replace(/\s/g, '');
+            if (/^\d*$/.test(rawValue)) { // Only allow digits
+                const caretPosition = e.target.selectionStart;
+                const oldValueLength = e.target.value.length;
+                e.target.value = formatForInputDisplay(rawValue);
+                const newValueLength = e.target.value.length;
+                // Adjust caret position after formatting
+                if (caretPosition !== null) {
+                    e.target.setSelectionRange(caretPosition + (newValueLength - oldValueLength), caretPosition + (newValueLength - oldValueLength));
+                }
+            } else {
+                 // If not all digits (after removing spaces), revert to previous valid numeric part
+                e.target.value = formatForInputDisplay(rawValue.replace(/\D/g, ''));
+            }
+        });
+        el.addEventListener('blur', (e) => {
+            e.target.value = formatForInputDisplay(e.target.value.replace(/\s/g, ''));
+        });
+        // Format initial values
+        el.value = formatForInputDisplay(el.value);
+    });
+
+
+    function calculateAndDisplaySavings() {
+        const initialSavings = parseInputFormattedValue(initialSavingsEl.value);
+        const monthlySavings = parseInputFormattedValue(monthlySavingsEl.value);
+        const annualInterestRate = parseFloat(annualInterestRateEl.value) / 100; // This remains number input
+        const numberOfYears = parseInt(numberOfYearsEl.value); // This remains number input
+
+        if (isNaN(initialSavings) || isNaN(monthlySavings) || isNaN(annualInterestRate) || isNaN(numberOfYears) || initialSavings < 0 || monthlySavings < 0 || annualInterestRate < 0 || numberOfYears <= 0) {
+            alert('Please enter valid numbers for all fields. Initial and Monthly savings cannot be negative. Years must be positive. Interest rate cannot be negative.');
+            return;
+        }
+        // Allow monthly savings to be 0 if initial savings is present
+        if (initialSavings === 0 && monthlySavings <= 0) {
+            alert('Please enter a positive value for Initial Savings or Monthly Savings.');
+            return;
+        }
+
+
+        let currentBalance = initialSavings; // Start with initial savings
+        let overallTotalContributions = 0; // Only tracks periodic contributions
+        let overallTotalInterest = 0;
+        
+        const yearlyData = [];
+        const chartLabels = [];
+        const chartEndingBalances = [];
+
+        yearlyBreakdownTableBodyEl.innerHTML = ''; // Clear previous results
+
+        for (let year = 1; year <= numberOfYears; year++) {
+            const startingBalanceForYear = currentBalance;
+            const contributionsThisYear = monthlySavings * 12;
+            const balanceAfterContributions = startingBalanceForYear + contributionsThisYear;
+            const interestEarnedThisYear = balanceAfterContributions * annualInterestRate;
+            const endingBalanceForYear = balanceAfterContributions + interestEarnedThisYear;
+
+            overallTotalContributions += contributionsThisYear;
+            overallTotalInterest += interestEarnedThisYear;
+            currentBalance = endingBalanceForYear;
+
+            yearlyData.push({
+                year,
+                startingBalance: startingBalanceForYear,
+                contributions: contributionsThisYear,
+                interest: interestEarnedThisYear,
+                endingBalance: endingBalanceForYear
+            });
+
+            chartLabels.push(`Year ${year}`);
+            chartEndingBalances.push(Math.round(endingBalanceForYear)); // Round for chart data
+
+            // Populate table row
+            const row = yearlyBreakdownTableBodyEl.insertRow();
+            row.insertCell().textContent = year;
+            row.insertCell().textContent = formatCurrency(startingBalanceForYear);
+            row.insertCell().textContent = formatCurrency(contributionsThisYear);
+            row.insertCell().textContent = formatCurrency(interestEarnedThisYear);
+            row.insertCell().textContent = formatCurrency(endingBalanceForYear);
+        }
+
+        totalContributionsEl.textContent = formatCurrency(overallTotalContributions);
+        totalInterestEl.textContent = formatCurrency(overallTotalInterest);
+        totalFutureValueEl.textContent = formatCurrency(currentBalance);
+
+        renderChart(chartLabels, chartEndingBalances.map(val => parseFloat(val))); // Ensure data is numbers for chart
+    }
+
+    function renderChart(labels, data) {
+        if (savingsChartInstance) {
+            savingsChartInstance.destroy();
+        }
+        const ctx = savingsChartCanvas.getContext('2d');
+        savingsChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+            datasets: [{
+                label: 'Savings Growth (kr)',
+                data: data,
+                borderColor: '#A2D2FF', // Pastel Blue
+                    backgroundColor: 'rgba(162, 210, 255, 0.2)', // Lighter, semi-transparent Pastel Blue
+                    tension: 0.1,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                // Format Y-axis ticks
+                                return formatCurrency(value).replace(' kr', ''); // Remove currency for cleaner axis
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || ''; // e.g., "Savings Growth (kr)"
+                                if (label) {
+                                    // Check if the label already contains (kr)
+                                    if (!label.includes('(kr)')) {
+                                       label = label.replace('($)', '(kr)'); // Fallback if $ was somehow in label
+                                    }
+                                     label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    // Format tooltip values
+                                    label += formatCurrency(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // Perform an initial calculation if default values are present and valid
+    // Also re-format input field values on load
+    [initialSavingsEl, monthlySavingsEl].forEach(el => {
+        el.value = formatForInputDisplay(el.value);
+    });
+    if (initialSavingsEl.value && monthlySavingsEl.value && annualInterestRateEl.value && numberOfYearsEl.value) {
+        calculateAndDisplaySavings();
+    }
+}

@@ -1,0 +1,137 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #FAF3E0; /* Warm white */
+    color: #333;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header {
+    background-color: #A2D2FF; /* Pastel Blue */
+    padding: 1em 2em;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+header h1 {
+    margin: 0;
+    color: #FFF;
+}
+
+main {
+    flex-grow: 1;
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap; /* Allow charts to wrap */
+    gap: 20px; /* Space between chart cards */
+    justify-content: center; /* Center chart cards if they don't fill the row */
+}
+
+.chart-placeholder {
+    /* Styles for when the chart content is not yet loaded, if any */
+    min-height: 100px; /* Ensure placeholder has some size */
+}
+
+.chart-card {
+    background-color: #FFF;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    padding: 20px;
+    margin-bottom: 20px; /* Spacing between stacked cards if not wrapping */
+    width: 100%; /* Default width, can be adjusted */
+    max-width: 600px; /* Max width for a single chart card */
+    box-sizing: border-box;
+}
+
+.chart-card h2 {
+    color: #BDE0FE; /* Lighter Pastel Blue */
+    margin-top: 0;
+    border-bottom: 2px solid #E0F7FA; /* Light Cyan for separation */
+    padding-bottom: 10px;
+}
+
+.chart-card label {
+    display: block;
+    margin-bottom: 5px;
+    color: #555;
+    font-weight: bold;
+}
+
+.chart-card input[type="number"],
+.chart-card input[type="text"] {
+    width: calc(100% - 22px); /* Full width minus padding and border */
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #BDB2FF; /* Pastel Purple */
+    border-radius: 8px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+.chart-card input[type="number"]:focus,
+.chart-card input[type="text"]:focus {
+    border-color: #A2D2FF; /* Pastel Blue on focus */
+    outline: none;
+}
+
+.chart-card button {
+    background-color: #FFC8DD; /* Pastel Pink */
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.chart-card button:hover {
+    background-color: #FFAFCC; /* Lighter Pastel Pink */
+}
+
+.chart-card .output-area p {
+    font-size: 1.1em;
+    color: #333;
+    margin: 10px 0;
+}
+
+.chart-card .output-area span {
+    font-weight: bold;
+    color: #2a9d8f; /* A contrasting teal for output values */
+}
+
+.chart-card table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.chart-card th, .chart-card td {
+    border: 1px solid #E0F7FA; /* Light Cyan */
+    padding: 8px;
+    text-align: left;
+}
+
+.chart-card th {
+    background-color: #CAE9FF; /* Very Light Pastel Blue */
+    color: #333;
+}
+
+.chart-card tr:nth-child(even) {
+    background-color: #F8FDFF; /* Off-white for alternate rows */
+}
+
+footer {
+    background-color: #A2D2FF; /* Pastel Blue */
+    color: white;
+    text-align: center;
+    padding: 1em 0;
+    margin-top: auto; /* Pushes footer to the bottom */
+    box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+}
