@@ -264,6 +264,18 @@ function initializeSavingsCalculator() {
     [initialSavingsEl, monthlySavingsEl].forEach(el => { // currentAgeEl is not formatted this way
         el.value = formatForInputDisplay(el.value);
     });
+
+    // Add event listeners to all input fields to trigger recalculation on change
+    const allInputs = [initialSavingsEl, monthlySavingsEl, currentAgeEl, annualInterestRateEl, numberOfYearsEl];
+    allInputs.forEach(inputEl => {
+        inputEl.addEventListener('input', () => {
+            // Small debounce or delay can be added here if performance becomes an issue with rapid input
+            // For now, direct recalculation:
+            calculateAndDisplaySavings();
+        });
+    });
+
+    // Perform an initial calculation if default values are present and valid
     if (initialSavingsEl.value && monthlySavingsEl.value && annualInterestRateEl.value && numberOfYearsEl.value) {
         calculateAndDisplaySavings();
     }
