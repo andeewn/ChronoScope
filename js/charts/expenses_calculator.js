@@ -119,6 +119,19 @@ function initializeExpensesCalculator() {
     addExpenseBtn.addEventListener('click', handleAddOrUpdateExpense); // Renamed for clarity
     calculateProjectionBtn.addEventListener('click', calculateAndDisplayProjection);
     currentExpensesTableBodyEl.addEventListener('click', handleTableActions); // Handles both Edit and Delete
+    projectionYearsEl.addEventListener('input', handleYearsInputChange); // Add listener for years input
+
+    // --- Event Handlers ---
+    function handleYearsInputChange() {
+        // Trigger recalculation if there are expenses
+        if (expenses.length > 0) {
+            calculateAndDisplayProjection();
+        } else {
+             // Clear projection if no expenses
+            if (expensesChartInstance) expensesChartInstance.destroy();
+            expensesYearlyBreakdownTableBodyEl.innerHTML = '';
+        }
+    }
 
     // --- Core Functions ---
     function handleTableActions(event) {
@@ -193,10 +206,14 @@ function initializeExpensesCalculator() {
         expenseOccurrenceEl.value = 'monthly'; // Reset dropdown
         expenseNameEl.focus(); // Focus back on name field
 
-        // Optionally, immediately recalculate projection if years are set and expenses exist
-        // if (parseInt(projectionYearsEl.value) > 0) {
-        //     calculateAndDisplayProjection();
-        // }
+        // Immediately recalculate projection if years are set and expenses exist
+        if (parseInt(projectionYearsEl.value) > 0 && expenses.length > 0) {
+            calculateAndDisplayProjection();
+        } else if (expenses.length === 0) {
+             // Clear projection if no expenses left
+            if (expensesChartInstance) expensesChartInstance.destroy();
+            expensesYearlyBreakdownTableBodyEl.innerHTML = '';
+        }
     }
 
     function calculateAnnualCost(cost, occurrence) {
@@ -271,8 +288,8 @@ function initializeExpensesCalculator() {
         expenses = expenses.filter(exp => exp.id !== expenseIdToRemove);
         updateCurrentExpensesDisplay(); // Refresh table and totals
 
-        // If chart/projection exists, recalculate or clear it
-        if (expenses.length > 0 && (expensesChartInstance || expensesYearlyBreakdownTableBodyEl.innerHTML !== '')) {
+        // Immediately recalculate projection if years are set and expenses exist
+        if (parseInt(projectionYearsEl.value) > 0 && expenses.length > 0) {
              calculateAndDisplayProjection(); // Recalculate if something was projected
         } else if (expenses.length === 0) {
             // Clear projection if no expenses left
