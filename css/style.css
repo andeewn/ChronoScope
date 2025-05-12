@@ -132,6 +132,21 @@ main {
     background-color: #FF4C4C; /* Darker soft red on hover */
 }
 
+.chart-card .edit-expense-btn {
+    background-color: #FFEC8B; /* Pastel Yellow (LightGoldenrod1) */
+    color: #555; /* Darker text for better contrast on yellow */
+    padding: 5px 10px; /* Same as remove */
+    font-size: 12px; /* Same as remove */
+    border-radius: 5px; /* Same as remove */
+    border: none; /* Ensure no border */
+    cursor: pointer; /* Ensure pointer cursor */
+    transition: background-color 0.3s ease; /* Add transition */
+}
+
+.chart-card .edit-expense-btn:hover {
+    background-color: #EEDC82; /* Darker Pastel Yellow (LightGoldenrod2) */
+}
+
 .chart-card .output-area p {
     font-size: 1.1em;
     color: #333;

@@ -25,6 +25,7 @@ function initializeExpensesCalculator() {
     const expensesChartCanvas = document.getElementById('expensesChart');
     const expensesYearlyBreakdownTableBodyEl = document.getElementById('expensesYearlyBreakdownTableBody');
     let expensesChartInstance = null;
+    let editingExpenseId = null; // Track the ID of the expense being edited
 
     let expenses = []; // Array to store {id, name, cost, occurrence, annualCost}
 
@@ -115,12 +116,35 @@ function initializeExpensesCalculator() {
 
 
     // --- Event Listeners ---
-    addExpenseBtn.addEventListener('click', handleAddExpense);
+    addExpenseBtn.addEventListener('click', handleAddOrUpdateExpense); // Renamed for clarity
     calculateProjectionBtn.addEventListener('click', calculateAndDisplayProjection);
-    currentExpensesTableBodyEl.addEventListener('click', handleDeleteExpense);
+    currentExpensesTableBodyEl.addEventListener('click', handleTableActions); // Handles both Edit and Delete
 
     // --- Core Functions ---
-    function handleAddExpense() {
+    function handleTableActions(event) {
+        if (event.target.classList.contains('remove-expense-btn')) {
+            const expenseIdToRemove = parseInt(event.target.dataset.id);
+            handleDeleteExpense(expenseIdToRemove);
+        } else if (event.target.classList.contains('edit-expense-btn')) {
+            const expenseIdToEdit = parseInt(event.target.dataset.id);
+            handleStartEditExpense(expenseIdToEdit);
+        }
+    }
+
+    function handleStartEditExpense(expenseId) {
+        const expenseToEdit = expenses.find(exp => exp.id === expenseId);
+        if (!expenseToEdit) return;
+
+        expenseNameEl.value = expenseToEdit.name;
+        expenseCostEl.value = formatForInputDisplay(expenseToEdit.cost); // Format for display
+        expenseOccurrenceEl.value = expenseToEdit.occurrence;
+
+        editingExpenseId = expenseId;
+        addExpenseBtn.textContent = 'Update Expense';
+        expenseNameEl.focus();
+    }
+
+    function handleAddOrUpdateExpense() { // Renamed and modified
         const name = expenseNameEl.value.trim();
         const costString = expenseCostEl.value;
         const occurrence = expenseOccurrenceEl.value;
@@ -138,22 +162,38 @@ function initializeExpensesCalculator() {
         }
 
         const annualCost = calculateAnnualCost(cost, occurrence);
-        const newExpense = {
-            id: Date.now(), // Simple unique ID
-            name: name,
-            cost: cost,
-            occurrence: occurrence,
-            annualCost: annualCost
-        };
-        expenses.push(newExpense);
 
-        updateCurrentExpensesDisplay();
+        if (editingExpenseId !== null) {
+            // --- Update existing expense ---
+            const expenseIndex = expenses.findIndex(exp => exp.id === editingExpenseId);
+            if (expenseIndex > -1) {
+                expenses[expenseIndex].name = name;
+                expenses[expenseIndex].cost = cost;
+                expenses[expenseIndex].occurrence = occurrence;
+                expenses[expenseIndex].annualCost = annualCost;
+            }
+            editingExpenseId = null; // Reset editing state
+            addExpenseBtn.textContent = 'Add Expense'; // Change button text back
+        } else {
+            // --- Add new expense ---
+            const newExpense = {
+                id: Date.now(), // Simple unique ID
+                name: name,
+                cost: cost,
+                occurrence: occurrence,
+                annualCost: annualCost
+            };
+            expenses.push(newExpense);
+        }
+
+        updateCurrentExpensesDisplay(); // Refresh table and totals
+        // Clear form fields after add or update
         expenseNameEl.value = '';
         expenseCostEl.value = '';
-        expenseOccurrenceEl.value = 'monthly'; // Reset to default
-        expenseNameEl.focus();
-        
-        // Optionally, immediately recalculate projection if years are set
+        expenseOccurrenceEl.value = 'monthly'; // Reset dropdown
+        expenseNameEl.focus(); // Focus back on name field
+
+        // Optionally, immediately recalculate projection if years are set and expenses exist
         // if (parseInt(projectionYearsEl.value) > 0) {
         //     calculateAndDisplayProjection();
         // }
@@ -177,7 +217,7 @@ function initializeExpensesCalculator() {
         if (expenses.length === 0) {
             const row = currentExpensesTableBodyEl.insertRow();
             const cell = row.insertCell();
-            cell.colSpan = 5;
+            cell.colSpan = 5; // Keep 5 columns: Name, Cost, Occurrence, Annual Cost, Actions
             cell.textContent = 'No expenses added yet.';
             cell.style.textAlign = 'center';
         } else {
@@ -190,9 +230,19 @@ function initializeExpensesCalculator() {
                 
                 const removeBtn = document.createElement('button');
                 removeBtn.textContent = 'Remove';
-                removeBtn.classList.add('remove-expense-btn'); // For styling if needed
+                removeBtn.classList.add('remove-expense-btn');
                 removeBtn.dataset.id = exp.id;
-                row.insertCell().appendChild(removeBtn);
+                removeBtn.style.marginLeft = '5px'; // Add some space between buttons
+
+                const editBtn = document.createElement('button');
+                editBtn.textContent = 'Edit';
+                editBtn.classList.add('edit-expense-btn');
+                editBtn.dataset.id = exp.id;
+
+                const actionsCell = row.insertCell();
+                actionsCell.appendChild(editBtn);
+                actionsCell.appendChild(removeBtn);
+
                 totalAnnual += exp.annualCost;
             });
         }
@@ -207,15 +257,26 @@ function initializeExpensesCalculator() {
         totalListedDailyExpensesEl.textContent = formatCurrency(totalDaily);     // Update daily total display
     }
 
-    function handleDeleteExpense(event) {
-        if (event.target.classList.contains('remove-expense-btn')) {
-            const expenseIdToRemove = parseInt(event.target.dataset.id);
-            expenses = expenses.filter(exp => exp.id !== expenseIdToRemove);
-            updateCurrentExpensesDisplay();
-            // If chart/projection exists, good idea to recalculate or clear it
-            if (expensesChartInstance || expensesYearlyBreakdownTableBodyEl.innerHTML !== '') {
-                 calculateAndDisplayProjection(); // Recalculate if something was projected
-            }
+    function handleDeleteExpense(expenseIdToRemove) { // Modified to accept ID directly
+        // If deleting the item currently being edited, reset the form
+        if (editingExpenseId === expenseIdToRemove) {
+            editingExpenseId = null;
+            addExpenseBtn.textContent = 'Add Expense';
+            expenseNameEl.value = '';
+            expenseCostEl.value = '';
+            expenseOccurrenceEl.value = 'monthly';
+        }
+
+        expenses = expenses.filter(exp => exp.id !== expenseIdToRemove);
+        updateCurrentExpensesDisplay(); // Refresh table and totals
+
+        // If chart/projection exists, recalculate or clear it
+        if (expenses.length > 0 && (expensesChartInstance || expensesYearlyBreakdownTableBodyEl.innerHTML !== '')) {
+             calculateAndDisplayProjection(); // Recalculate if something was projected
+        } else if (expenses.length === 0) {
+            // Clear projection if no expenses left
+            if (expensesChartInstance) expensesChartInstance.destroy();
+            expensesYearlyBreakdownTableBodyEl.innerHTML = '';
         }
     }
 
