@@ -18,6 +18,7 @@ function initializeTrueCostCalculator() {
     const totalCostIfFinancedOutEl = document.getElementById('totalCostIfFinanced');
     const totalLoanInterestPaidOutEl = document.getElementById('totalLoanInterestPaid');
     const potentialValueIfInvestedOutEl = document.getElementById('potentialValueIfInvested');
+    const potentialInvestmentGainOutEl = document.getElementById('potentialInvestmentGain'); // Added this line
     
     const trueCostChartCanvas = document.getElementById('trueCostChart');
     let trueCostChartInstance = null;
@@ -138,11 +139,15 @@ function initializeTrueCostCalculator() {
         }
        
 
+        // Calculate Potential Gain
+        const potentialInvestmentGain = potentialValueIfInvested - directPurchasePrice;
+
         // Update Output Area
         directPurchasePriceOutEl.textContent = formatCurrency(directPurchasePrice);
         totalCostIfFinancedOutEl.textContent = formatCurrency(totalCostIfFinanced);
         totalLoanInterestPaidOutEl.textContent = formatCurrency(totalLoanInterestPaid);
         potentialValueIfInvestedOutEl.textContent = formatCurrency(potentialValueIfInvested);
+        potentialInvestmentGainOutEl.textContent = formatCurrency(potentialInvestmentGain); // Added this line
 
         // Render Chart
         renderTrueCostChart([
