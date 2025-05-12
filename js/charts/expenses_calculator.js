@@ -231,11 +231,12 @@ function initializeExpensesCalculator() {
                 const removeBtn = document.createElement('button');
                 removeBtn.textContent = 'Remove';
                 removeBtn.classList.add('remove-expense-btn');
+                removeBtn.textContent = '❌'; // Use Cross Mark icon
                 removeBtn.dataset.id = exp.id;
                 removeBtn.style.marginLeft = '5px'; // Add some space between buttons
 
                 const editBtn = document.createElement('button');
-                editBtn.textContent = 'Edit';
+                editBtn.textContent = '✏️'; // Use Pencil icon
                 editBtn.classList.add('edit-expense-btn');
                 editBtn.dataset.id = exp.id;
 
