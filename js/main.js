@@ -5,6 +5,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load the expenses calculator HTML and its specific JavaScript
     loadChart('charts/expenses_calculator.html', 'expensesCalculatorChartContainer', 'js/charts/expenses_calculator.js');
 
+    // Load the true cost calculator HTML and its specific JavaScript
+    loadChart('charts/true_cost_calculator.html', 'trueCostCalculatorChartContainer', 'js/charts/true_cost_calculator.js');
+
     // Example for adding another chart in the future:
     // loadChart('charts/another_chart.html', 'anotherChartPlaceholderId', 'js/charts/another_chart.js');
 });
