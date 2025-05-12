@@ -18,6 +18,9 @@ function initializeExpensesCalculator() {
 
     const currentExpensesTableBodyEl = document.getElementById('currentExpensesTableBody');
     const totalListedAnnualExpensesEl = document.getElementById('totalListedAnnualExpenses');
+    const totalListedMonthlyExpensesEl = document.getElementById('totalListedMonthlyExpenses'); // Added for monthly total
+    const totalListedWeeklyExpensesEl = document.getElementById('totalListedWeeklyExpenses');   // Added for weekly total
+    const totalListedDailyExpensesEl = document.getElementById('totalListedDailyExpenses');     // Added for daily total
     
     const expensesChartCanvas = document.getElementById('expensesChart');
     const expensesYearlyBreakdownTableBodyEl = document.getElementById('expensesYearlyBreakdownTableBody');
@@ -193,7 +196,15 @@ function initializeExpensesCalculator() {
                 totalAnnual += exp.annualCost;
             });
         }
+        // Calculate and display all totals
+        const totalMonthly = totalAnnual / 12;
+        const totalWeekly = totalAnnual / 52; 
+        const totalDaily = totalAnnual / 365; // Calculate daily total
+
         totalListedAnnualExpensesEl.textContent = formatCurrency(totalAnnual);
+        totalListedMonthlyExpensesEl.textContent = formatCurrency(totalMonthly); // Update monthly total display
+        totalListedWeeklyExpensesEl.textContent = formatCurrency(totalWeekly);   // Update weekly total display
+        totalListedDailyExpensesEl.textContent = formatCurrency(totalDaily);     // Update daily total display
     }
 
     function handleDeleteExpense(event) {
