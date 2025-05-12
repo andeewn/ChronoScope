@@ -316,13 +316,23 @@ function initializeExpensesCalculator() {
             labels.push(`Year ${i}`);
         }
 
-        const datasets = expenses.map((exp, index) => {
+        // Calculate cumulative annual costs for each expense
+        const cumulativeDatasets = expenses.map((exp, index) => {
+            const cumulativeData = [];
+            let currentCumulative = 0;
+            for (let i = 0; i < projectionYears; i++) {
+                currentCumulative += exp.annualCost;
+                cumulativeData.push(currentCumulative);
+            }
             return {
                 label: exp.name,
-                data: Array(projectionYears).fill(exp.annualCost),
+                data: cumulativeData, // Use cumulative data
                 backgroundColor: chartColors[index % chartColors.length], // Cycle through colors
                 borderColor: chartColors[index % chartColors.length].replace('0.7', '1'), // Solid border
-                borderWidth: 1
+                borderWidth: 1, // Keep border for the line on top of the area
+                fill: true,     // This is key for area chart
+                tension: 0.1,   // Optional: for slightly curved lines, 0 for straight
+                pointRadius: 0  // Optional: to hide points on the line
             };
         });
 
@@ -331,10 +341,10 @@ function initializeExpensesCalculator() {
         }
         const ctx = expensesChartCanvas.getContext('2d');
         expensesChartInstance = new Chart(ctx, {
-            type: 'bar',
+            type: 'line',
             data: {
                 labels: labels,
-                datasets: datasets
+                datasets: cumulativeDatasets // Use cumulative datasets
             },
             options: {
                 responsive: true,
@@ -342,9 +352,11 @@ function initializeExpensesCalculator() {
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Annual Expense Projection'
+                        text: 'Cumulative Expense Projection (Stacked Area)' // Update title
                     },
                     tooltip: {
+                        mode: 'index', 
+                        intersect: false,
                         callbacks: {
                             label: function(context) {
                                 let label = context.dataset.label || '';
@@ -368,11 +380,11 @@ function initializeExpensesCalculator() {
                         }
                     },
                     y: {
-                        stacked: true,
+                        stacked: true, // Crucial for stacked area
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Total Annual Expenses (kr)'
+                            text: 'Cumulative Expenses (kr)' // Update Y-axis title
                         },
                         ticks: {
                             callback: function(value) {
@@ -380,6 +392,11 @@ function initializeExpensesCalculator() {
                             }
                         }
                     }
+                },
+                interaction: { // Good for area charts
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
                 }
             }
         });
@@ -388,15 +405,18 @@ function initializeExpensesCalculator() {
     function updateExpensesYearlyBreakdownTable(projectionYears) {
         expensesYearlyBreakdownTableBodyEl.innerHTML = ''; // Clear previous results
         
+        let cumulativeTotal = 0; // Track cumulative total for the table
         for (let year = 1; year <= projectionYears; year++) {
             let totalExpensesThisYear = 0;
             expenses.forEach(exp => {
-                totalExpensesThisYear += exp.annualCost; // Assumes expense is ongoing
+                totalExpensesThisYear += exp.annualCost; // Still need annual total for table row
             });
+            cumulativeTotal += totalExpensesThisYear; // Add annual total to cumulative
 
             const row = expensesYearlyBreakdownTableBodyEl.insertRow();
             row.insertCell().textContent = year;
-            row.insertCell().textContent = formatCurrency(totalExpensesThisYear);
+            // Display cumulative total in the table
+            row.insertCell().textContent = formatCurrency(cumulativeTotal); 
         }
     }
     
