@@ -159,6 +159,7 @@ function initializeExpensesCalculator() {
     function calculateAnnualCost(cost, occurrence) {
         switch (occurrence) {
             case 'daily': return cost * 365;
+            case 'weekday': return cost * 260; // Approx 52 weeks * 5 days
             case 'weekly': return cost * 52;
             case 'monthly': return cost * 12;
             case 'quarterly': return cost * 4;
