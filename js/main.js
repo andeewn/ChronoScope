@@ -1,21 +1,102 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Load the savings calculator HTML and its specific JavaScript
-    loadChart('charts/savings_calculator.html', 'savingsCalculatorChartContainer', 'js/charts/savings_calculator.js');
-    
-    // Load the expenses calculator HTML and its specific JavaScript
-    loadChart('charts/expenses_calculator.html', 'expensesCalculatorChartContainer', 'js/charts/expenses_calculator.js');
-
-    // Load the true cost calculator HTML and its specific JavaScript
-    loadChart('charts/true_cost_calculator.html', 'trueCostCalculatorChartContainer', 'js/charts/true_cost_calculator.js');
-
-    // Example for adding another chart in the future:
-    // loadChart('charts/another_chart.html', 'anotherChartPlaceholderId', 'js/charts/another_chart.js');
+    loadSidebar();
 });
 
-function loadChart(chartHtmlFile, containerId, chartJsFile) {
+let activeChartContainerId = null;
+const loadedChartScripts = {}; // Keep track of loaded chart-specific JS SCRIPT FILES to prevent re-adding script tags
+
+function loadSidebar() {
+    const sidebarContainer = document.getElementById('sidebarContainer');
+    if (!sidebarContainer) {
+        console.error("Sidebar container 'sidebarContainer' not found.");
+        return;
+    }
+
+    fetch('sidebar.html')
+        .then(response => {
+            if (!response.ok) throw new Error(`Failed to load sidebar.html: ${response.statusText}`);
+            return response.text();
+        })
+        .then(html => {
+            sidebarContainer.innerHTML = html;
+            setupNavigation();
+            setupHamburgerMenu();
+
+            const firstLink = document.querySelector('#sidebarContainer .sidebar-link');
+            if (firstLink) {
+                firstLink.click(); 
+            }
+        })
+        .catch(error => {
+            console.error("Error loading sidebar:", error);
+            sidebarContainer.innerHTML = `<p style="color: red;">Error loading sidebar: ${error.message}</p>`;
+        });
+}
+
+function setupNavigation() {
+    const links = document.querySelectorAll('#sidebarContainer .sidebar-link');
+    links.forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            
+            const targetContainerId = this.dataset.chartTarget;
+            const chartHtmlFile = this.dataset.chartHtml;
+            const chartJsFile = this.dataset.chartJs;
+
+            displayChart(targetContainerId, chartHtmlFile, chartJsFile);
+
+            links.forEach(l => l.classList.remove('active'));
+            this.classList.add('active');
+
+            if (window.innerWidth < 769) {
+                document.body.classList.remove('sidebar-open');
+            }
+        });
+    });
+}
+
+function displayChart(containerId, chartHtmlFile, chartJsFile) {
+    if (activeChartContainerId && activeChartContainerId !== containerId) {
+        const oldContainer = document.getElementById(activeChartContainerId);
+        if (oldContainer) {
+            oldContainer.style.display = 'none';
+            oldContainer.classList.remove('active');
+        }
+    }
+
+    const targetContainer = document.getElementById(containerId);
+    if (!targetContainer) {
+        console.error(`Target container with ID '${containerId}' not found.`);
+        return;
+    }
+
+    targetContainer.style.display = 'block'; 
+    targetContainer.classList.add('active'); 
+    activeChartContainerId = containerId;
+
+    if (!targetContainer.dataset.chartLoaded) {
+        loadChartContent(chartHtmlFile, containerId, chartJsFile, (success) => {
+            if (success) {
+                targetContainer.dataset.chartLoaded = "true"; 
+                console.log(`Content and script for ${containerId} processed, marked as loaded.`);
+            } else {
+                console.error(`Failed to fully load content for ${containerId}.`);
+            }
+        });
+    } else {
+        console.log(`${containerId} was already loaded. Ensuring it's visible.`);
+        // If charts need re-initialization upon re-display (e.g., Chart.js instances),
+        // that logic would need to be callable from here, perhaps by finding and calling
+        // a specific init function associated with the chart if its JS is already loaded.
+        // For now, we assume making the container visible is enough.
+    }
+}
+
+function loadChartContent(chartHtmlFile, containerId, chartJsFile, onProcessedCallback) {
     const container = document.getElementById(containerId);
-    if (!container) {
-        console.error(`Container with ID '${containerId}' not found.`);
+    if (!container) { 
+        console.error(`Container with ID '${containerId}' not found for content loading.`);
+        if (onProcessedCallback) onProcessedCallback(false);
         return;
     }
 
@@ -28,35 +109,48 @@ function loadChart(chartHtmlFile, containerId, chartJsFile) {
         })
         .then(html => {
             container.innerHTML = html;
-            // After injecting HTML, we might need to execute scripts within that HTML.
-            // For simple cases, if scripts are at the end of the loaded HTML, they might execute.
-            // For more complex cases, or if scripts are in <head> or need specific timing,
-            // a more robust script loading/execution mechanism might be needed.
-            // For now, we assume scripts in the loaded HTML (like savings_calculator.js)
-            // will be correctly referenced and will execute in context.
-            // We need to ensure the script tag in the loaded HTML has the correct path.
-            // e.g. <script src="../js/charts/savings_calculator.js"></script> if savings_calculator.html is in charts/
             
-            // If a specific JavaScript file is provided for this chart, load it
             if (chartJsFile) {
-                const script = document.createElement('script');
-                script.src = chartJsFile;
-                script.onload = () => {
-                    // You could add a log or a callback here if needed after the script loads
-                    console.log(`${chartJsFile} loaded successfully.`);
-                    // If chart JS files define an init function, you could call it here, e.g.:
-                    // if (typeof window.initSavingsCalculator === 'function') {
-                    //     window.initSavingsCalculator();
-                    // }
-                };
-                script.onerror = () => {
-                    console.error(`Failed to load script: ${chartJsFile}`);
-                };
-                document.body.appendChild(script); // Append to body to ensure execution
+                // Check if the SCRIPT FILE itself has already been added to the DOM
+                if (!loadedChartScripts[chartJsFile]) {
+                    const script = document.createElement('script');
+                    script.src = chartJsFile;
+                    script.onload = () => {
+                        console.log(`${chartJsFile} loaded successfully.`);
+                        loadedChartScripts[chartJsFile] = true; // Mark script file as loaded
+                        if (onProcessedCallback) onProcessedCallback(true);
+                    };
+                    script.onerror = () => {
+                        console.error(`Failed to load script: ${chartJsFile}`);
+                        if (onProcessedCallback) onProcessedCallback(false);
+                    };
+                    document.body.appendChild(script);
+                } else {
+                    // Script file was already added. If chart needs re-init, it's more complex.
+                    console.log(`${chartJsFile} script tag was already added. Chart might need manual re-initialization if not visible.`);
+                    // For now, assume if script tag is there, its initial run configured the chart.
+                    // The displayChart function handles visibility.
+                    if (onProcessedCallback) onProcessedCallback(true); // Consider it processed for now.
+                }
+            } else {
+                 // No specific JS file to load for this chart HTML
+                if (onProcessedCallback) onProcessedCallback(true);
             }
         })
         .catch(error => {
-            console.error(`Error loading chart into ${containerId}:`, error);
-            container.innerHTML = `<p style="color: red;">Error loading chart: ${error.message}</p>`;
+            console.error(`Error loading chart HTML content into ${containerId}:`, error);
+            container.innerHTML = `<p style="color: red;">Error loading chart HTML: ${error.message}</p>`;
+            if (onProcessedCallback) onProcessedCallback(false);
         });
+}
+
+function setupHamburgerMenu() {
+    const hamburgerButton = document.getElementById('hamburgerMenu');
+    if (hamburgerButton) {
+        hamburgerButton.addEventListener('click', function() {
+            document.body.classList.toggle('sidebar-open');
+        });
+    } else {
+        console.error("Hamburger menu button 'hamburgerMenu' not found.");
+    }
 }

@@ -7,13 +7,80 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    position: relative; /* For positioning hamburger/sidebar */
 }
+
+/* Sidebar Styles */
+#sidebarContainer .sidebar-nav { /* Target nav inside the container */
+    background-color: #E0F7FA; /* Light Cyan */
+    width: 250px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 20px 0;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+    transform: translateX(-100%); /* Hidden by default */
+    transition: transform 0.3s ease-in-out;
+}
+
+body.sidebar-open #sidebarContainer .sidebar-nav {
+    transform: translateX(0);
+}
+
+#sidebarContainer .sidebar-nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#sidebarContainer .sidebar-link {
+    display: block;
+    padding: 12px 20px;
+    text-decoration: none;
+    color: #333;
+    border-bottom: 1px solid #CAE9FF; /* Very Light Pastel Blue */
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+#sidebarContainer .sidebar-link:hover,
+#sidebarContainer .sidebar-link:focus {
+    background-color: #BDE0FE; /* Lighter Pastel Blue */
+    color: #FFF;
+}
+
+#sidebarContainer .sidebar-link.active {
+    background-color: #FFC8DD; /* Pastel Pink */
+    color: #FFF;
+    font-weight: bold;
+}
+
+/* Hamburger Menu Button */
+#hamburgerMenu {
+    display: block; /* Hidden on desktop by media query */
+    font-size: 28px;
+    color: #555; /* Changed to a dark gray */
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0 15px; /* Adjusted padding */
+    position: fixed; /* Changed from absolute to fixed */
+    top: 20px; /* Adjust top position for fixed */
+    left: 15px;
+    z-index: 1001; /* Above sidebar */
+    line-height: 1; /* Ensure consistent height */
+    transform: none; /* Remove translateY as top is now fixed */
+}
+
 
 header {
     background-color: #A2D2FF; /* Pastel Blue */
     padding: 1em 2em;
     text-align: center;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative; /* For hamburger positioning context */
+    transition: margin-left 0.3s ease-in-out; /* For desktop shift */
 }
 
 header h1 {
@@ -24,15 +91,21 @@ header h1 {
 main {
     flex-grow: 1;
     padding: 20px;
-    display: flex;
-    flex-wrap: wrap; /* Allow charts to wrap */
-    gap: 20px; /* Space between chart cards */
-    justify-content: center; /* Center chart cards if they don't fill the row */
+    display: flex; /* Will be overridden by display:block for individual charts */
+    flex-wrap: wrap; /* Allow charts to wrap - this might not be needed if only one chart is visible */
+    gap: 20px; 
+    justify-content: center; 
+    transition: margin-left 0.3s ease-in-out; /* For desktop shift */
 }
 
 .chart-placeholder {
-    /* Styles for when the chart content is not yet loaded, if any */
-    min-height: 100px; /* Ensure placeholder has some size */
+    display: none; /* Hide all placeholders by default */
+    width: 100%; /* Ensure it takes up space when visible */
+    /* min-height: 100px; Ensure placeholder has some size - might not be needed if content always fills */
+}
+
+.chart-placeholder.active {
+    display: block; /* Or 'flex' if its children need flex properties */
 }
 
 .chart-card {
@@ -192,4 +265,32 @@ footer {
     padding: 1em 0;
     margin-top: auto; /* Pushes footer to the bottom */
     box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+    transition: margin-left 0.3s ease-in-out; /* For desktop shift */
+}
+
+/* Media Queries for Responsive Layout */
+@media (min-width: 769px) {
+    #hamburgerMenu {
+        display: none;
+    }
+
+    #sidebarContainer .sidebar-nav {
+        transform: translateX(0); /* Sidebar always visible */
+    }
+
+    body.sidebar-open #sidebarContainer .sidebar-nav {
+        /* No change needed from default visible state on desktop */
+    }
+    
+    main {
+        margin-left: 250px;
+    }
+
+    header {
+        margin-left: 250px;
+    }
+
+    footer {
+        margin-left: 250px;
+    }
 }
