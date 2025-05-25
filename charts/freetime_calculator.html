@@ -1,18 +1,22 @@
 <div class="chart-card">
     <h2>Freetime Calculator</h2>
     <form id="freetimeForm">
+        <fieldset class="schedule-group">
+            <legend>Work/School Schedule</legend>
+            <div class="input-group">
+                <label for="workSchoolTime">Time per Day (incl. Travel): <span id="workSchoolTimeValue">9.5 hours</span></label>
+                <input type="range" id="workSchoolTime" min="0" max="12" step="0.5" value="9.5">
+            </div>
+            <div class="input-group">
+                <label for="workSchoolDays">Days per Week: <span id="workSchoolDaysValue">5 days</span></label>
+                <input type="range" id="workSchoolDays" min="0" max="7" step="1" value="5">
+            </div>
+        </fieldset>
+
         <h3>Mandatory Daily Activities</h3>
         <div class="input-group">
             <label for="sleepTime">Sleep: <span id="sleepTimeValue">8.0 hours</span></label>
             <input type="range" id="sleepTime" min="0" max="12" step="0.5" value="8">
-        </div>
-        <div class="input-group">
-            <label for="workSchoolTime">Work/School & Travel: <span id="workSchoolTimeValue">9.5 hours</span></label>
-            <input type="range" id="workSchoolTime" min="0" max="12" step="0.5" value="9.5">
-        </div>
-        <div class="input-group">
-            <label for="workSchoolDays">Work/School Days per Week: <span id="workSchoolDaysValue">5 days</span></label>
-            <input type="range" id="workSchoolDays" min="0" max="7" step="1" value="5">
         </div>
         <div class="input-group">
             <label for="personalCareTime">Personal Care & Hygiene: <span id="personalCareTimeValue">1.0 hours</span></label>
