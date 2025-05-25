@@ -23,6 +23,9 @@ function initializeSavingsCalculator() {
     let savingsChartInstance = null;
 
     // New elements for slider value display
+    const initialSavingsValueDisplay = document.getElementById('initialSavingsValue');
+    const monthlySavingsValueDisplay = document.getElementById('monthlySavingsValue');
+    const currentAgeValueDisplay = document.getElementById('currentAgeValue');
     const annualInterestRateValueDisplay = document.getElementById('annualInterestRateValue');
     const numberOfYearsValueDisplay = document.getElementById('numberOfYearsValue');
 
@@ -63,46 +66,29 @@ function initializeSavingsCalculator() {
         return parseFloat(String(value).replace(/\s/g, ''));
     }
 
-    // Add event listeners for input formatting
-    [initialSavingsEl, monthlySavingsEl].forEach(el => {
-        el.addEventListener('input', (e) => {
-            const rawValue = e.target.value.replace(/\s/g, '');
-            if (/^\d*$/.test(rawValue)) { // Only allow digits
-                const caretPosition = e.target.selectionStart;
-                const oldValueLength = e.target.value.length;
-                e.target.value = formatForInputDisplay(rawValue);
-                const newValueLength = e.target.value.length;
-                // Adjust caret position after formatting
-                if (caretPosition !== null) {
-                    e.target.setSelectionRange(caretPosition + (newValueLength - oldValueLength), caretPosition + (newValueLength - oldValueLength));
-                }
-            } else {
-                 // If not all digits (after removing spaces), revert to previous valid numeric part
-                e.target.value = formatForInputDisplay(rawValue.replace(/\D/g, ''));
-            }
-        });
-        el.addEventListener('blur', (e) => {
-            e.target.value = formatForInputDisplay(e.target.value.replace(/\s/g, ''));
-        });
-        // Format initial values
-        el.value = formatForInputDisplay(el.value);
-    });
+    // Helper function to parse formatted INPUT value to number - RETAINED FOR NOW, but not used by new sliders
+    // function parseInputFormattedValue(value) {
+    //     return parseFloat(String(value).replace(/\s/g, ''));
+    // }
+
+    // REMOVED: Old input formatting logic for initialSavingsEl and monthlySavingsEl
+    // [initialSavingsEl, monthlySavingsEl].forEach(el => { ... });
 
 
     function calculateAndDisplaySavings() {
-        const initialSavings = parseInputFormattedValue(initialSavingsEl.value);
-        const monthlySavings = parseInputFormattedValue(monthlySavingsEl.value);
-        const currentAgeInput = currentAgeEl.value.trim();
-        let currentAge = null;
-        if (currentAgeInput !== "") {
-            currentAge = parseInt(currentAgeInput, 10);
-            if (isNaN(currentAge) || currentAge < 0) {
-                alert('Please enter a valid positive number for Current Age, or leave it empty.');
-                return; // Or treat as null and proceed
-            }
+        const initialSavings = parseFloat(initialSavingsEl.value); // Changed from parseInputFormattedValue
+        const monthlySavings = parseFloat(monthlySavingsEl.value); // Changed from parseInputFormattedValue
+        
+        let currentAge = parseInt(currentAgeEl.value, 10);
+        if (currentAge === 0) { // Treat 0 as "not provided"
+            currentAge = null;
+        } else if (isNaN(currentAge) || currentAge < 0) { // Should not happen with slider
+            alert('Current Age is invalid.'); // Simplified message
+            return;
         }
-        const annualInterestRate = parseFloat(annualInterestRateEl.value) / 100; 
-        const numberOfYears = parseInt(numberOfYearsEl.value); 
+
+        const annualInterestRate = parseFloat(annualInterestRateEl.value) / 100;
+        const numberOfYears = parseInt(numberOfYearsEl.value);
 
         if (isNaN(initialSavings) || isNaN(monthlySavings) || isNaN(annualInterestRate) || isNaN(numberOfYears) || initialSavings < 0 || monthlySavings < 0 || annualInterestRate < 0 || numberOfYears <= 0) {
             alert('Please enter valid numbers for Initial Savings, Monthly Savings, Interest Rate, and Years. Savings and Interest cannot be negative. Years must be positive.');
@@ -264,12 +250,19 @@ function initializeSavingsCalculator() {
     }
     
     // Perform an initial calculation if default values are present and valid
-    // Also re-format input field values on load
-    [initialSavingsEl, monthlySavingsEl].forEach(el => { // currentAgeEl is not formatted this way
-        el.value = formatForInputDisplay(el.value);
-    });
+    // REMOVED: Old re-formatting of initialSavingsEl and monthlySavingsEl on load
+    // [initialSavingsEl, monthlySavingsEl].forEach(el => { ... });
 
-    // Set initial display values for sliders
+    // Set initial display values for ALL sliders
+    if (initialSavingsEl && initialSavingsValueDisplay) {
+        initialSavingsValueDisplay.textContent = formatCurrency(initialSavingsEl.value);
+    }
+    if (monthlySavingsEl && monthlySavingsValueDisplay) {
+        monthlySavingsValueDisplay.textContent = formatCurrency(monthlySavingsEl.value);
+    }
+    if (currentAgeEl && currentAgeValueDisplay) {
+        currentAgeValueDisplay.textContent = currentAgeEl.value + ' years';
+    }
     if (annualInterestRateEl && annualInterestRateValueDisplay) {
         annualInterestRateValueDisplay.textContent = annualInterestRateEl.value + '%';
     }
@@ -281,15 +274,19 @@ function initializeSavingsCalculator() {
     const allInputs = [initialSavingsEl, monthlySavingsEl, currentAgeEl, annualInterestRateEl, numberOfYearsEl];
     allInputs.forEach(inputEl => {
         inputEl.addEventListener('input', () => {
-            if (inputEl.type === 'range') { // Check if it's one of our new sliders
-                if (inputEl.id === 'annualInterestRate' && annualInterestRateValueDisplay) {
+            if (inputEl.type === 'range') {
+                if (inputEl.id === 'initialSavings' && initialSavingsValueDisplay) {
+                    initialSavingsValueDisplay.textContent = formatCurrency(inputEl.value);
+                } else if (inputEl.id === 'monthlySavings' && monthlySavingsValueDisplay) {
+                    monthlySavingsValueDisplay.textContent = formatCurrency(inputEl.value);
+                } else if (inputEl.id === 'currentAge' && currentAgeValueDisplay) {
+                    currentAgeValueDisplay.textContent = inputEl.value + ' years';
+                } else if (inputEl.id === 'annualInterestRate' && annualInterestRateValueDisplay) {
                     annualInterestRateValueDisplay.textContent = inputEl.value + '%';
                 } else if (inputEl.id === 'numberOfYears' && numberOfYearsValueDisplay) {
                     numberOfYearsValueDisplay.textContent = inputEl.value + ' years';
                 }
             }
-            // Small debounce or delay can be added here if performance becomes an issue with rapid input
-            // For now, direct recalculation:
             calculateAndDisplaySavings();
         });
     });
