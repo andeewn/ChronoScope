@@ -118,6 +118,16 @@ function loadChartContent(chartHtmlFile, containerId, chartJsFile, onProcessedCa
                     script.onload = () => {
                         console.log(`${chartJsFile} loaded successfully.`);
                         loadedChartScripts[chartJsFile] = true; // Mark script file as loaded
+                        
+                        // Check if the loaded script defines a global initialization function
+                        // and call it if the container is active
+                        if (chartJsFile.includes('freetime_calculator.js') && typeof initFreetimeCalculator === 'function') {
+                            initFreetimeCalculator();
+                            console.log('initFreetimeCalculator called.');
+                        }
+                        // Add similar checks for other chart initializers if they are refactored
+                        // to use explicit init functions.
+
                         if (onProcessedCallback) onProcessedCallback(true);
                     };
                     script.onerror = () => {

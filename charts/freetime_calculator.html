@@ -1,0 +1,89 @@
+<div class="chart-card">
+    <h2>Freetime Calculator</h2>
+    <form id="freetimeForm">
+        <h3>Mandatory Daily Activities</h3>
+        <div class="input-group">
+            <label for="sleepTime">Sleep: <span id="sleepTimeValue">8.0 hours</span></label>
+            <input type="range" id="sleepTime" min="0" max="12" step="0.5" value="8">
+        </div>
+        <div class="input-group">
+            <label for="workSchoolTime">Work/School & Travel: <span id="workSchoolTimeValue">9.5 hours</span></label>
+            <input type="range" id="workSchoolTime" min="0" max="12" step="0.5" value="9.5">
+        </div>
+        <div class="input-group">
+            <label for="workSchoolDays">Work/School Days per Week: <span id="workSchoolDaysValue">5 days</span></label>
+            <input type="range" id="workSchoolDays" min="0" max="7" step="1" value="5">
+        </div>
+        <div class="input-group">
+            <label for="personalCareTime">Personal Care & Hygiene: <span id="personalCareTimeValue">1.0 hours</span></label>
+            <input type="range" id="personalCareTime" min="0" max="12" step="0.5" value="1">
+        </div>
+        <div class="input-group">
+            <label for="choresTime">Household Chores: <span id="choresTimeValue">1.0 hours</span></label>
+            <input type="range" id="choresTime" min="0" max="12" step="0.5" value="1">
+        </div>
+        
+        <hr style="margin-top: 20px; margin-bottom: 20px;">
+
+        <h3>Custom Activities</h3>
+        <div>
+            <label for="customActivityName">Activity Name:</label>
+            <input type="text" id="customActivityName">
+        </div>
+        <div>
+            <label for="customActivityTime">Time (hours):</label>
+            <input type="text" id="customActivityTime" inputmode="numeric">
+        </div>
+        <div>
+            <label for="customActivityOccurrence">Occurrence:</label>
+            <select id="customActivityOccurrence">
+                <option value="daily">Daily (Every Day)</option>
+                <option value="weekdays">Weekdays Only</option>
+                <option value="weekends">Weekends Only</option>
+            </select>
+        </div>
+        <button type="button" id="addCustomActivityBtn" style="margin-top: 10px;">Add Custom Activity</button>
+
+        <div style="margin-top: 20px;">
+            <h4>Current Custom Activities</h4>
+            <table id="customActivitiesTable" class="results-table" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Time (hours)</th>
+                        <th>Occurrence</th>
+                        <th>Avg. Daily (hours)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="customActivitiesTableBody">
+                    <!-- Custom activities will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <button type="button" id="calculateFreetimeBtn" style="margin-top: 20px;">Calculate Freetime</button>
+    </form>
+
+    <div style="margin-top: 20px;">
+        <h3>Summary</h3>
+        <p>Total Daily Time Committed: <span id="totalDailyCommittedTime">0 hours 0 minutes</span></p>
+        <p>Daily Freetime: <span id="dailyFreetime">0 hours 0 minutes</span></p>
+        <p>Total Weekly Freetime: <span id="totalWeeklyFreetime">0 hours 0 minutes</span></p>
+    </div>
+
+    <div class="chart-canvas-container" style="margin-top: 20px;">
+        <h3>Average Daily Time Allocation</h3>
+        <canvas id="freetimePieChart"></canvas>
+    </div>
+
+    <div class="chart-canvas-container" style="margin-top: 30px;">
+        <h3>Typical Work/School Day Time Allocation</h3>
+        <canvas id="workdayPieChart"></canvas>
+    </div>
+
+    <div class="chart-canvas-container" style="margin-top: 30px;">
+        <h3>Typical Weekend Day Time Allocation</h3>
+        <canvas id="weekendPieChart"></canvas>
+    </div>
+</div>
