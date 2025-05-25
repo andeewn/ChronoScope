@@ -22,6 +22,10 @@ function initializeSavingsCalculator() {
     const savingsChartCanvas = document.getElementById('savingsChart');
     let savingsChartInstance = null;
 
+    // New elements for slider value display
+    const annualInterestRateValueDisplay = document.getElementById('annualInterestRateValue');
+    const numberOfYearsValueDisplay = document.getElementById('numberOfYearsValue');
+
     if (!calculateBtn) {
         // console.error('Calculate button not found. The script might be running before the HTML is fully loaded or the ID is incorrect.');
         // This can happen if main.js loads this script before the HTML from fetch is fully processed.
@@ -265,10 +269,25 @@ function initializeSavingsCalculator() {
         el.value = formatForInputDisplay(el.value);
     });
 
+    // Set initial display values for sliders
+    if (annualInterestRateEl && annualInterestRateValueDisplay) {
+        annualInterestRateValueDisplay.textContent = annualInterestRateEl.value + '%';
+    }
+    if (numberOfYearsEl && numberOfYearsValueDisplay) {
+        numberOfYearsValueDisplay.textContent = numberOfYearsEl.value + ' years';
+    }
+
     // Add event listeners to all input fields to trigger recalculation on change
     const allInputs = [initialSavingsEl, monthlySavingsEl, currentAgeEl, annualInterestRateEl, numberOfYearsEl];
     allInputs.forEach(inputEl => {
         inputEl.addEventListener('input', () => {
+            if (inputEl.type === 'range') { // Check if it's one of our new sliders
+                if (inputEl.id === 'annualInterestRate' && annualInterestRateValueDisplay) {
+                    annualInterestRateValueDisplay.textContent = inputEl.value + '%';
+                } else if (inputEl.id === 'numberOfYears' && numberOfYearsValueDisplay) {
+                    numberOfYearsValueDisplay.textContent = inputEl.value + ' years';
+                }
+            }
             // Small debounce or delay can be added here if performance becomes an issue with rapid input
             // For now, direct recalculation:
             calculateAndDisplaySavings();
