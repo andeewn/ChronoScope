@@ -16,6 +16,8 @@ function initializeExpensesCalculator() {
     const projectionYearsEl = document.getElementById('projectionYears');
     const calculateProjectionBtn = document.getElementById('calculateProjectionBtn');
 
+    const projectionYearsValueDisplay = document.getElementById('projectionYearsValue'); // New element for slider value display
+
     const currentExpensesTableBodyEl = document.getElementById('currentExpensesTableBody');
     const totalListedAnnualExpensesEl = document.getElementById('totalListedAnnualExpenses');
     const totalListedMonthlyExpensesEl = document.getElementById('totalListedMonthlyExpenses'); // Added for monthly total
@@ -119,10 +121,16 @@ function initializeExpensesCalculator() {
     addExpenseBtn.addEventListener('click', handleAddOrUpdateExpense); // Renamed for clarity
     calculateProjectionBtn.addEventListener('click', calculateAndDisplayProjection);
     currentExpensesTableBodyEl.addEventListener('click', handleTableActions); // Handles both Edit and Delete
-    projectionYearsEl.addEventListener('input', handleYearsInputChange); // Add listener for years input
+    // Set initial display value for the slider
+    if (projectionYearsEl && projectionYearsValueDisplay) {
+        projectionYearsValueDisplay.textContent = projectionYearsEl.value + ' years';
+    }
 
-    // --- Event Handlers ---
-    function handleYearsInputChange() {
+    // Add event listener to the projectionYears slider to trigger recalculation on change
+    projectionYearsEl.addEventListener('input', () => {
+        if (projectionYearsValueDisplay) {
+            projectionYearsValueDisplay.textContent = projectionYearsEl.value + ' years';
+        }
         // Trigger recalculation if there are expenses
         if (expenses.length > 0) {
             calculateAndDisplayProjection();
@@ -131,7 +139,7 @@ function initializeExpensesCalculator() {
             if (expensesChartInstance) expensesChartInstance.destroy();
             expensesYearlyBreakdownTableBodyEl.innerHTML = '';
         }
-    }
+    });
 
     // --- Core Functions ---
     function handleTableActions(event) {
