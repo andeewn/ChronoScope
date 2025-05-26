@@ -25,7 +25,7 @@
         <hr style="margin-top: 20px; margin-bottom: 20px;">
 
         <div class="input-group">
-            <label for="projectionYears">Number of Years for Projection: <span id="projectionYearsValue" class="slider-value">10 years</span></label>
+            <label for="projectionYears">Number of Years for Projection: <input type="number" id="projectionYearsValue" class="slider-value" value="10" min="1" max="50"></label>
             <input type="range" id="projectionYears" min="1" max="50" step="1" value="10" class="slider-input">
         </div>
         <button type="button" id="calculateProjectionBtn" style="margin-top: 10px;">Calculate Projection</button>

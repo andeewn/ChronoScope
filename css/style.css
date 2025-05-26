@@ -232,6 +232,31 @@ main {
     font-weight: normal; /* Labels are bold, make span normal weight */
 }
 
+/* Style for the number input acting as a slider value display */
+.chart-card input[type="number"].slider-value {
+    display: inline-block;
+    width: 75px; /* Fixed width for consistency */
+    text-align: center; /* Center text for numbers */
+    margin-left: 8px;
+    padding: 2px 5px;
+    font-size: 0.9em;
+    color: #444;
+    background-color: #F0FAFC;
+    border-radius: 4px;
+    border: 1px solid #D0EBF2;
+    vertical-align: baseline;
+    box-sizing: border-box;
+    font-weight: normal;
+    -moz-appearance: textfield; /* Remove Firefox spinner */
+}
+
+/* Hide number input arrows for Webkit browsers (Chrome, Safari) */
+.chart-card input[type="number"].slider-value::-webkit-outer-spin-button,
+.chart-card input[type="number"].slider-value::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
 .chart-card button {
     background-color: #FFC8DD; /* Pastel Pink */
     color: white;

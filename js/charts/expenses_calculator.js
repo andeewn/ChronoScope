@@ -16,7 +16,7 @@ function initializeExpensesCalculator() {
     const projectionYearsEl = document.getElementById('projectionYears');
     const calculateProjectionBtn = document.getElementById('calculateProjectionBtn');
 
-    const projectionYearsValueDisplay = document.getElementById('projectionYearsValue'); // New element for slider value display
+    const projectionYearsValueDisplay = document.getElementById('projectionYearsValue'); // Now an input type="number"
 
     const currentExpensesTableBodyEl = document.getElementById('currentExpensesTableBody');
     const totalListedAnnualExpensesEl = document.getElementById('totalListedAnnualExpenses');
@@ -121,21 +121,69 @@ function initializeExpensesCalculator() {
     addExpenseBtn.addEventListener('click', handleAddOrUpdateExpense); // Renamed for clarity
     calculateProjectionBtn.addEventListener('click', calculateAndDisplayProjection);
     currentExpensesTableBodyEl.addEventListener('click', handleTableActions); // Handles both Edit and Delete
-    // Set initial display value for the slider
+    // Set initial display value for the number input
     if (projectionYearsEl && projectionYearsValueDisplay) {
-        projectionYearsValueDisplay.textContent = projectionYearsEl.value + ' years';
+        projectionYearsValueDisplay.value = projectionYearsEl.value;
     }
 
-    // Add event listener to the projectionYears slider to trigger recalculation on change
+    // Add event listener to the projectionYears slider (range input)
     projectionYearsEl.addEventListener('input', () => {
         if (projectionYearsValueDisplay) {
-            projectionYearsValueDisplay.textContent = projectionYearsEl.value + ' years';
+            projectionYearsValueDisplay.value = projectionYearsEl.value; // Update number input
         }
         // Trigger recalculation if there are expenses
         if (expenses.length > 0) {
             calculateAndDisplayProjection();
         } else {
              // Clear projection if no expenses
+            if (expensesChartInstance) expensesChartInstance.destroy();
+            expensesYearlyBreakdownTableBodyEl.innerHTML = '';
+        }
+    });
+
+    // Add event listener to the projectionYearsValue (number input)
+    projectionYearsValueDisplay.addEventListener('input', () => {
+        let inputValue = projectionYearsValueDisplay.value.trim();
+        let newValue;
+
+        if (inputValue === '') {
+            newValue = 1; // Default to 1 if input is empty
+        } else {
+            newValue = parseInt(inputValue, 10);
+        }
+        
+        const min = parseInt(projectionYearsEl.min, 10);
+        const max = parseInt(projectionYearsEl.max, 10);
+
+        if (isNaN(newValue) || newValue < min || newValue > max) {
+            // If invalid (not a number, or outside min/max range),
+            // revert the input box to the current slider value,
+            // and ensure slider value is within bounds (default to 1 if it was invalid)
+            let currentSliderValue = parseInt(projectionYearsEl.value, 10);
+            if (isNaN(currentSliderValue) || currentSliderValue < min || currentSliderValue > max) {
+                currentSliderValue = 1; // Fallback if slider itself is somehow invalid
+            }
+            projectionYearsValueDisplay.value = currentSliderValue;
+            projectionYearsEl.value = currentSliderValue; // Ensure slider is also consistent
+            // No alert, just silently correct to 1 or current valid slider value
+        } else {
+            // Update the slider's value
+            projectionYearsEl.value = newValue;
+            // The slider's 'input' event listener will handle updating the display and recalculation.
+            // However, if the value was set programmatically, the 'input' event might not fire consistently.
+            // So, explicitly call calculation here if needed, or ensure the slider's event handles it.
+            // For now, let's rely on the slider's event listener to trigger the calculation.
+            // If the slider's value is set programmatically, its 'input' event should fire.
+            // If not, we might need to call calculateAndDisplayProjection() directly here.
+            // Let's test this first.
+        }
+
+        // Always trigger recalculation if there are expenses, as the value might have changed
+        // or been corrected. This ensures the chart/table updates.
+        if (expenses.length > 0) {
+            calculateAndDisplayProjection();
+        } else {
+            // Clear projection if no expenses
             if (expensesChartInstance) expensesChartInstance.destroy();
             expensesYearlyBreakdownTableBodyEl.innerHTML = '';
         }
