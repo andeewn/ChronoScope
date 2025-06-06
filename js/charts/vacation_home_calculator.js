@@ -21,7 +21,6 @@ function calculateVacationHomeFinances() {
     const purchasePrice = parseFormattedNumber(document.getElementById('purchasePrice').value);
     const downPaymentPercentage = parseFloat(document.getElementById('downPaymentPercentage').value) / 100;
     const annualPriceIncrease = parseFloat(document.getElementById('annualPriceIncrease').value) / 100;
-    const livingArea = parseFloat(document.getElementById('livingArea').value);
     const interestRate = parseFloat(document.getElementById('interestRate').value) / 100;
     const amortizationRequirement = parseFloat(document.getElementById('amortizationRequirement').value) / 100;
     const avgWeeklyRentalPrice = parseFormattedNumber(document.getElementById('avgWeeklyRentalPrice').value);
