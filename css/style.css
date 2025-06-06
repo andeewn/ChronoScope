@@ -358,6 +358,11 @@ main {
     width: 100%;   /* Take full width of its parent (.chart-card) */
 }
 
+/* Specific height for Vacation Home Calculator chart */
+#vacationHomeChart {
+    height: 450px; /* Increased height for the chart */
+}
+
 footer {
     background-color: #A2D2FF; /* Pastel Blue */
     color: white;

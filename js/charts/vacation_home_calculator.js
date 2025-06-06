@@ -122,7 +122,131 @@ function calculateVacationHomeFinances() {
     document.getElementById('finalPropertyValue').textContent = formatSEK(currentPropertyValue);
     const overallFinancialOutcome = cumulativeOperationalResult + (currentPropertyValue - purchasePrice); // Operational result + property appreciation
     document.getElementById('overallFinancialOutcome').textContent = formatSEK(overallFinancialOutcome);
+
+    // --- Chart Rendering ---
+    const ctx = document.getElementById('vacationHomeChart').getContext('2d');
+
+    // Destroy existing chart if it exists
+    if (vacationHomeChart) {
+        vacationHomeChart.destroy();
+    }
+
+    const years = [];
+    const propertyValues = [];
+    const loanBalances = [];
+    const cumulativeResults = [];
+
+    // Re-run the loop to collect data for the chart
+    let chartCurrentLoanBalance = loanAmount;
+    let chartCurrentPropertyValue = purchasePrice;
+    let chartCumulativeOperationalResult = 0;
+
+    for (let year = 1; year <= analysisPeriodYears; year++) {
+        years.push(`Year ${year}`);
+
+        const annualInterest = chartCurrentLoanBalance * interestRate;
+        const annualAmortization = chartCurrentLoanBalance * amortizationRequirement;
+        const annualMaintenance = purchasePrice * maintenanceCostPercentage;
+        const totalAnnualCosts = annualInterest + annualAmortization + propertyFee + operatingCosts + insuranceCost + annualMaintenance;
+
+        const annualOperationalResult = netRentalIncome - totalAnnualCosts;
+        chartCumulativeOperationalResult += annualOperationalResult;
+
+        chartCurrentLoanBalance = Math.max(0, chartCurrentLoanBalance - annualAmortization);
+        chartCurrentPropertyValue *= (1 + annualPriceIncrease);
+
+        propertyValues.push(chartCurrentPropertyValue);
+        loanBalances.push(chartCurrentLoanBalance);
+        cumulativeResults.push(chartCumulativeOperationalResult);
+    }
+
+    vacationHomeChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: years,
+            datasets: [
+                {
+                    label: 'Estimated Property Value (SEK)',
+                    data: propertyValues,
+                    borderColor: '#A2D2FF', // Pastel blue
+                    backgroundColor: 'rgba(162, 210, 255, 0.2)',
+                    fill: false,
+                    tension: 0.1
+                },
+                {
+                    label: 'Remaining Loan Balance (SEK)',
+                    data: loanBalances,
+                    borderColor: '#FFC8DD', // Pastel pink
+                    backgroundColor: 'rgba(255, 200, 221, 0.2)',
+                    fill: false,
+                    tension: 0.1
+                },
+                {
+                    label: 'Cumulative Net Result (SEK)',
+                    data: cumulativeResults,
+                    borderColor: '#B0E0E6', // Pastel light blue
+                    backgroundColor: 'rgba(176, 224, 230, 0.2)',
+                    fill: false,
+                    tension: 0.1
+                },
+                {
+                    label: 'Total Initial Investment (SEK)',
+                    data: Array(analysisPeriodYears).fill(totalInitialCost), // Horizontal line
+                    borderColor: '#CCCCCC', // Grey
+                    borderDash: [5, 5], // Dashed line
+                    backgroundColor: 'transparent',
+                    fill: false,
+                    pointRadius: 0 // No points for this line
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Vacation Home Financial Projection'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += formatSEK(context.parsed.y);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Year'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Amount (SEK)'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return formatSEK(value);
+                        }
+                    }
+                }
+            }
+        }
+    });
 }
+
+let vacationHomeChart; // Declare chart variable globally
 
 // Event listener setup function
 function setupVacationHomeListeners() {
