@@ -250,23 +250,38 @@ let vacationHomeChart; // Declare chart variable globally
 
 // Event listener setup function
 function setupVacationHomeListeners() {
-    const calculateBtn = document.getElementById('calculateVacationHome');
-    if (calculateBtn && !calculateBtn.dataset.listenerAttached) { // Prevent attaching multiple listeners
-        calculateBtn.addEventListener('click', calculateVacationHomeFinances);
-        calculateBtn.dataset.listenerAttached = 'true';
-    }
+    const allInputs = [
+        'purchasePrice', 'downPaymentPercentage', 'annualPriceIncrease',
+        'interestRate', 'amortizationRequirement', 'avgWeeklyRentalPrice',
+        'numRentalWeeks', 'operatingCosts', 'insuranceCost',
+        'maintenanceCostPercentage', 'propertyFee', 'inspectionCost',
+        'bankAdminFees', 'analysisPeriodYears'
+    ];
 
+    allInputs.forEach(id => {
+        const input = document.getElementById(id);
+        if (input && !input.dataset.listenerAttached) { // Prevent attaching multiple listeners
+            input.addEventListener('input', function() {
+                // For currency inputs, format first then calculate
+                if (['purchasePrice', 'avgWeeklyRentalPrice', 'operatingCosts',
+                     'insuranceCost', 'propertyFee', 'inspectionCost', 'bankAdminFees'].includes(id)) {
+                    formatCurrencyInput.call(this);
+                }
+                calculateVacationHomeFinances();
+            });
+            input.dataset.listenerAttached = 'true';
+        }
+    });
+
+    // Initial formatting for currency inputs on load
     const currencyInputs = [
         'purchasePrice', 'avgWeeklyRentalPrice', 'operatingCosts',
         'insuranceCost', 'propertyFee', 'inspectionCost', 'bankAdminFees'
     ];
-
     currencyInputs.forEach(id => {
         const input = document.getElementById(id);
-        if (input && !input.dataset.listenerAttached) { // Prevent attaching multiple listeners
-            input.addEventListener('input', formatCurrencyInput);
-            formatCurrencyInput.call(input); // Format on load if there's a default value
-            input.dataset.listenerAttached = 'true';
+        if (input) {
+            formatCurrencyInput.call(input);
         }
     });
 }
