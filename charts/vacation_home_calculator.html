@@ -1,0 +1,149 @@
+<div class="chart-card">
+    <h2>Vacation Home Calculator</h2>
+    <div class="input-section">
+        <h3>1. Property Information</h3>
+        <div class="input-group">
+            <label for="purchasePrice">Purchase Price (SEK):</label>
+            <input type="text" id="purchasePrice" value="2500000" placeholder="e.g., 2 500 000">
+        </div>
+        <div class="input-group">
+            <label for="downPaymentPercentage">Down Payment (%):</label>
+            <input type="number" id="downPaymentPercentage" value="15" min="0" max="100">
+        </div>
+        <div class="input-group">
+            <label for="annualPriceIncrease">Assumed Annual Price Increase (%):</label>
+            <input type="number" id="annualPriceIncrease" value="2" min="0">
+        </div>
+        <div class="input-group">
+            <label for="livingArea">Living Area (sqm):</label>
+            <input type="number" id="livingArea" value="70" min="0">
+        </div>
+    </div>
+
+    <div class="input-section">
+        <h3>2. Financing Information</h3>
+        <div class="input-group">
+            <label for="interestRate">Interest Rate (%):</label>
+            <input type="number" id="interestRate" value="4" min="0">
+        </div>
+        <div class="input-group">
+            <label for="amortizationRequirement">Amortization Requirement (%):</label>
+            <input type="number" id="amortizationRequirement" value="2" min="0">
+        </div>
+    </div>
+
+    <div class="input-section">
+        <h3>3. Rental Information</h3>
+        <div class="input-group">
+            <label for="avgWeeklyRentalPrice">Average Weekly Rental Price (SEK):</label>
+            <input type="text" id="avgWeeklyRentalPrice" value="5000" placeholder="e.g., 5 000">
+        </div>
+        <div class="input-group">
+            <label for="numRentalWeeks">Number of Rental Weeks per Year:</label>
+            <input type="number" id="numRentalWeeks" value="10" min="0" max="52">
+        </div>
+    </div>
+
+    <div class="input-section">
+        <h3>4. Other Costs and Revenues</h3>
+        <div class="input-group">
+            <label for="operatingCosts">Operating Costs (per year, SEK):</label>
+            <input type="text" id="operatingCosts" value="15000" placeholder="e.g., 15 000">
+        </div>
+        <div class="input-group">
+            <label for="insuranceCost">Insurance (per year, SEK):</label>
+            <input type="text" id="insuranceCost" value="3000" placeholder="e.g., 3 000">
+        </div>
+        <div class="input-group">
+            <label for="maintenanceCostPercentage">Maintenance Cost (% of Purchase Price):</label>
+            <input type="number" id="maintenanceCostPercentage" value="1" min="0">
+        </div>
+        <div class="input-group">
+            <label for="propertyFee">Property Fee (per year, SEK):</label>
+            <input type="text" id="propertyFee" value="10080" placeholder="e.g., 10 080">
+        </div>
+        <div class="input-group">
+            <label for="inspectionCost">Inspection Cost (SEK):</label>
+            <input type="text" id="inspectionCost" value="5000" placeholder="e.g., 5 000">
+        </div>
+        <div class="input-group">
+            <label for="bankAdminFees">Bank's Administrative Fees (SEK):</label>
+            <input type="text" id="bankAdminFees" value="500" placeholder="e.g., 500">
+        </div>
+    </div>
+
+    <div class="input-section">
+        <h3>5. Analysis Period</h3>
+        <div class="input-group">
+            <label for="analysisPeriodYears">Analysis Period (years):</label>
+            <input type="number" id="analysisPeriodYears" value="10" min="1">
+        </div>
+    </div>
+
+    <button id="calculateVacationHome" class="calculate-btn">Calculate Vacation Home Finances</button>
+
+    <div class="results-section">
+        <h3>Initial Costs at Purchase</h3>
+        <p>Down Payment: <span id="initialDownPayment"></span></p>
+        <p>Stamp Duty (Lagfart) Cost: <span id="initialStampDuty"></span></p>
+        <p>Mortgage Deed (Pantbrev) Cost: <span id="initialMortgageDeed"></span></p>
+        <p>Inspection Cost: <span id="initialInspectionCost"></span></p>
+        <p>Bank's Administrative Fees: <span id="initialBankAdminFees"></span></p>
+        <p><strong>Total Initial Cost: <span id="totalInitialCost"></span></strong></p>
+    </div>
+
+    <div class="results-section">
+        <h3>Annual Ongoing Costs (First Year)</h3>
+        <p>Interest Costs: <span id="firstYearInterest"></span></p>
+        <p>Amortization: <span id="firstYearAmortization"></span></p>
+        <p>Property Fee: <span id="firstYearPropertyFee"></span></p>
+        <p>Operating Costs: <span id="firstYearOperatingCosts"></span></p>
+        <p>Insurance: <span id="firstYearInsurance"></span></p>
+        <p>Maintenance Costs: <span id="firstYearMaintenance"></span></p>
+        <p><strong>Total Annual Costs: <span id="firstYearTotalAnnualCosts"></span></strong></p>
+    </div>
+
+    <div class="results-section">
+        <h3>Potential Annual Rental Income</h3>
+        <p>Gross Rental Income: <span id="grossRentalIncome"></span></p>
+        <p>Tax on Rental Income: <span id="taxOnRentalIncome"></span></p>
+        <p><strong>Net Rental Income After Tax: <span id="netRentalIncome"></span></strong></p>
+    </div>
+
+    <div class="results-section">
+        <h3>Annual Net Result (Operations)</h3>
+        <p>Annual Net Result: <span id="annualNetResult"></span></p>
+    </div>
+
+    <div class="results-section">
+        <h3>Break-even Analysis</h3>
+        <p>Rental Weeks to Cover Annual Costs: <span id="rentalWeeksBreakEven"></span></p>
+        <p>Years to Recoup Initial Investment: <span id="recoupYears"></span></p>
+    </div>
+
+    <div class="results-section">
+        <h3>Ten-Year Overview</h3>
+        <table id="vacationHomeOverviewTable">
+            <thead>
+                <tr>
+                    <th>Year</th>
+                    <th>Total Annual Costs (SEK)</th>
+                    <th>Net Rental Income (SEK)</th>
+                    <th>Annual Result (SEK)</th>
+                    <th>Cumulative Result (SEK)</th>
+                    <th>Estimated Property Value (SEK)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Table rows will be inserted here by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="results-section">
+        <h3>Final Summary</h3>
+        <p>Total Accumulated Profit/Loss from Operations: <span id="totalOperationalResult"></span></p>
+        <p>Final Property Value: <span id="finalPropertyValue"></span></p>
+        <p><strong>Overall Financial Outcome: <span id="overallFinancialOutcome"></span></strong></p>
+    </div>
+</div>

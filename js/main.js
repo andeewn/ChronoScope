@@ -124,6 +124,15 @@ function loadChartContent(chartHtmlFile, containerId, chartJsFile, onProcessedCa
                         if (chartJsFile.includes('freetime_calculator.js') && typeof initFreetimeCalculator === 'function') {
                             initFreetimeCalculator();
                             console.log('initFreetimeCalculator called.');
+                        } else if (chartJsFile.includes('vacation_home_calculator.js')) {
+                            if (typeof setupVacationHomeListeners === 'function') {
+                                setupVacationHomeListeners(); // Setup listeners after HTML is loaded
+                                console.log('setupVacationHomeListeners called.');
+                            }
+                            if (typeof calculateVacationHomeFinances === 'function') {
+                                calculateVacationHomeFinances(); // Initial calculation
+                                console.log('calculateVacationHomeFinances called.');
+                            }
                         }
                         // Add similar checks for other chart initializers if they are refactored
                         // to use explicit init functions.
