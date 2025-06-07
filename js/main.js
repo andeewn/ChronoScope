@@ -1,4 +1,39 @@
+const THEME_KEY = 'selected-theme';
+
+function applyTheme(theme) {
+    if (theme === 'dark') {
+        document.body.classList.add('dark-mode');
+    } else {
+        document.body.classList.remove('dark-mode');
+    }
+}
+
+function toggleTheme() {
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    const newTheme = isDarkMode ? 'light' : 'dark';
+    applyTheme(newTheme);
+    localStorage.setItem(THEME_KEY, newTheme);
+    console.log(`Theme changed to ${newTheme} and saved to localStorage.`);
+}
+
+// Make toggleTheme globally accessible for the button
+window.toggleTheme = toggleTheme;
+
+function initializeTheme() {
+    const savedTheme = localStorage.getItem(THEME_KEY);
+    if (savedTheme) {
+        applyTheme(savedTheme);
+        console.log(`Applied saved theme: ${savedTheme}`);
+    } else {
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const defaultTheme = prefersDark ? 'dark' : 'light';
+        applyTheme(defaultTheme);
+        console.log(`Applied default theme based on system preference: ${defaultTheme}`);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+    initializeTheme(); // Initialize theme first
     loadSidebar();
 });
 
@@ -21,6 +56,7 @@ function loadSidebar() {
             sidebarContainer.innerHTML = html;
             setupNavigation();
             setupHamburgerMenu();
+            setupThemeSwitcher(); // Add this call
 
             const firstLink = document.querySelector('#sidebarContainer .sidebar-link');
             if (firstLink) {
@@ -171,5 +207,22 @@ function setupHamburgerMenu() {
         });
     } else {
         console.error("Hamburger menu button 'hamburgerMenu' not found.");
+    }
+}
+
+function setupThemeSwitcher() {
+    const themeSwitcherButton = document.getElementById('themeSwitcherButton');
+    if (themeSwitcherButton) {
+        themeSwitcherButton.addEventListener('click', function() {
+            window.toggleTheme(); // Calls the existing global function
+
+            // Optionally, update button text after theme toggle
+            // This provides immediate feedback to the user on the button itself.
+            // For example:
+            // const isDarkMode = document.body.classList.contains('dark-mode');
+            // this.textContent = isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+        });
+    } else {
+        console.error("Theme switcher button 'themeSwitcherButton' not found.");
     }
 }
