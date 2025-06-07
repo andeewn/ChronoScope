@@ -1,7 +1,101 @@
+:root {
+    /* Light Theme Colors */
+    --background-color-light: #FAF3E0; /* Warm white */
+    --text-color-light: #333; /* Dark gray */
+    --sidebar-background-light: #E0F7FA; /* Light Cyan */
+    --sidebar-border-light: #CAE9FF; /* Very Light Pastel Blue */
+    --sidebar-link-hover-background-light: #BDE0FE; /* Lighter Pastel Blue */
+    --sidebar-link-active-background-light: #FFC8DD; /* Pastel Pink */
+    --sidebar-link-active-text-light: #FFF;
+    --text-on-primary-light: #FFF; /* White text on colored backgrounds */
+    --hamburger-icon-color-light: #555; /* Medium Dark Gray */
+    --header-background-light: #A2D2FF; /* Pastel Blue */
+    --footer-background-light: #A2D2FF; /* Pastel Blue */
+    --chart-card-background-light: #FFF;
+    --chart-card-header-text-light: #BDE0FE; /* Lighter Pastel Blue */
+    --chart-card-header-border-light: #E0F7FA; /* Light Cyan */
+    --chart-label-text-light: #555; /* Medium Dark Gray */
+    --input-border-light: #BDB2FF; /* Pastel Purple */
+    --input-focus-border-light: #A2D2FF; /* Pastel Blue */
+    --input-background-light: #FFF;
+    --input-text-light: #333;
+    --select-arrow-color-light: #007CB2; /* Default from SVG */
+    --slider-track-background-light: #E0F7FA; /* Light Cyan */
+    --slider-thumb-background-light: #FFC8DD; /* Pastel Pink */
+    --slider-thumb-border-light: #FFF;
+    --slider-value-text-light: #444; /* Darker gray for slider value text */
+    --slider-value-background-light: #F0FAFC; /* Light blue-gray for slider value bg */
+    --slider-value-border-light: #D0EBF2; /* Light blue for slider value border */
+    --button-primary-background-light: #FFC8DD; /* Pastel Pink */
+    --button-primary-hover-background-light: #FFAFCC; /* Lighter Pastel Pink */
+    --button-primary-text-light: #FFF;
+    --button-danger-background-light: #FF6B6B; /* Soft Red */
+    --button-danger-hover-background-light: #FF4C4C; /* Darker Soft Red */
+    --button-danger-text-light: #FFF;
+    --button-edit-background-light: #FFEC8B; /* Pastel Yellow */
+    --button-edit-hover-background-light: #EEDC82; /* Darker Pastel Yellow */
+    --button-edit-text-light: #555; /* Medium Dark Gray */
+    --output-value-text-light: #2a9d8f; /* Contrasting Teal */
+    --table-border-light: #E0F7FA; /* Light Cyan */
+    --table-header-background-light: #CAE9FF; /* Very Light Pastel Blue */
+    --table-header-text-light: #333;
+    --table-row-even-background-light: #F8FDFF; /* Off-white */
+    --fieldset-border-light: #BDE0FE; /* Lighter Pastel Blue */
+    --fieldset-legend-text-light: #A2D2FF; /* Pastel Blue */
+    --box-shadow-color-light: rgba(0,0,0,0.1);
+    --box-shadow-strong-color-light: rgba(0,0,0,0.15);
+
+    /* Dark Theme Colors - Analogous to Light Theme */
+    --background-color-dark: #2c2f33; /* Dark Charcoal */
+    --text-color-dark: #FAF3E0; /* Warm white (like light theme background) */
+    --sidebar-background-dark: #23272a; /* Very Dark Gray, slightly lighter than body */
+    --sidebar-border-dark: #4f545c; /* Medium Dark Gray */
+    --sidebar-link-hover-background-dark: #3a3f44; /* Darker Gray for hover */
+    --sidebar-link-active-background-dark: #7289da; /* Discord-like Blurple for active */
+    --sidebar-link-active-text-dark: #FFF;
+    --text-on-primary-dark: #FFF; /* White text on colored backgrounds */
+    --hamburger-icon-color-dark: #e0e0e0; /* Light Gray */
+    --header-background-dark: #1e2124; /* Even Darker Gray for Header/Footer */
+    --footer-background-dark: #1e2124; /* Even Darker Gray for Header/Footer */
+    --chart-card-background-dark: #36393f; /* Dark Gray, lighter than body */
+    --chart-card-header-text-dark: #7289da; /* Discord-like Blurple */
+    --chart-card-header-border-dark: #4f545c; /* Medium Dark Gray */
+    --chart-label-text-dark: #e0e0e0; /* Light Gray */
+    --input-border-dark: #5b6eae; /* Desaturated Indigo */
+    --input-focus-border-dark: #7289da; /* Discord-like Blurple */
+    --input-background-dark: #40444b; /* Slightly lighter dark gray for inputs */
+    --input-text-dark: #FAF3E0;
+    --select-arrow-color-dark: #b0b0b0; /* Light gray for dark mode arrow */
+    --slider-track-background-dark: #4f545c; /* Medium Dark Gray */
+    --slider-thumb-background-dark: #7289da; /* Discord-like Blurple */
+    --slider-thumb-border-dark: #2c2f33; /* Dark Charcoal to match background */
+    --slider-value-text-dark: #e0e0e0; /* Light Gray for slider value text */
+    --slider-value-background-dark: #2a2d30; /* Darker gray for slider value bg */
+    --slider-value-border-dark: #40444b; /* Medium dark gray for slider value border */
+    --button-primary-background-dark: #7289da; /* Discord-like Blurple */
+    --button-primary-hover-background-dark: #5b6eae; /* Darker Blurple */
+    --button-primary-text-dark: #FFF;
+    --button-danger-background-dark: #c94a4a; /* Darker Soft Red */
+    --button-danger-hover-background-dark: #a33b3b; /* Even Darker Red */
+    --button-danger-text-dark: #FFF;
+    --button-edit-background-dark: #c9a44a; /* Darker Pastel Yellow */
+    --button-edit-hover-background-dark: #a3853b; /* Even Darker Yellow */
+    --button-edit-text-dark: #333; /* Dark text for contrast on yellow */
+    --output-value-text-dark: #50c878; /* Emerald Green for contrast */
+    --table-border-dark: #4f545c; /* Medium Dark Gray */
+    --table-header-background-dark: #3a3f44; /* Darker Gray */
+    --table-header-text-dark: #FAF3E0;
+    --table-row-even-background-dark: #303337; /* Slightly Lighter Dark Charcoal */
+    --fieldset-border-dark: #4f545c; /* Medium Dark Gray */
+    --fieldset-legend-text-dark: #7289da; /* Discord-like Blurple */
+    --box-shadow-color-dark: rgba(0,0,0,0.4); /* Darker shadow */
+    --box-shadow-strong-color-dark: rgba(0,0,0,0.55);
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #FAF3E0; /* Warm white */
-    color: #333;
+    background-color: var(--background-color-light);
+    color: var(--text-color-light);
     margin: 0;
     padding: 0;
     display: flex;
@@ -12,14 +106,14 @@ body {
 
 /* Sidebar Styles */
 #sidebarContainer .sidebar-nav { /* Target nav inside the container */
-    background-color: #E0F7FA; /* Light Cyan */
+    background-color: var(--sidebar-background-light);
     width: 250px;
     height: 100vh;
     position: fixed;
     top: 0;
     left: 0;
     padding: 20px 0;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    box-shadow: 2px 0 5px var(--box-shadow-color-light);
     z-index: 1000;
     transform: translateX(-100%); /* Hidden by default */
     transition: transform 0.3s ease-in-out;
@@ -39,20 +133,20 @@ body.sidebar-open #sidebarContainer .sidebar-nav {
     display: block;
     padding: 12px 20px;
     text-decoration: none;
-    color: #333;
-    border-bottom: 1px solid #CAE9FF; /* Very Light Pastel Blue */
+    color: var(--text-color-light);
+    border-bottom: 1px solid var(--sidebar-border-light);
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 #sidebarContainer .sidebar-link:hover,
 #sidebarContainer .sidebar-link:focus {
-    background-color: #BDE0FE; /* Lighter Pastel Blue */
-    color: #FFF;
+    background-color: var(--sidebar-link-hover-background-light);
+    color: var(--text-on-primary-light);
 }
 
 #sidebarContainer .sidebar-link.active {
-    background-color: #FFC8DD; /* Pastel Pink */
-    color: #FFF;
+    background-color: var(--sidebar-link-active-background-light);
+    color: var(--sidebar-link-active-text-light);
     font-weight: bold;
 }
 
@@ -60,7 +154,7 @@ body.sidebar-open #sidebarContainer .sidebar-nav {
 #hamburgerMenu {
     display: block; /* Hidden on desktop by media query */
     font-size: 28px;
-    color: #555; /* Changed to a dark gray */
+    color: var(--hamburger-icon-color-light);
     background: transparent;
     border: none;
     cursor: pointer;
@@ -75,17 +169,17 @@ body.sidebar-open #sidebarContainer .sidebar-nav {
 
 
 header {
-    background-color: #A2D2FF; /* Pastel Blue */
+    background-color: var(--header-background-light);
     padding: 1em 2em;
     text-align: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px var(--box-shadow-color-light);
     position: relative; /* For hamburger positioning context */
     transition: margin-left 0.3s ease-in-out; /* For desktop shift */
 }
 
 header h1 {
     margin: 0;
-    color: #FFF;
+    color: var(--text-on-primary-light);
 }
 
 main {
@@ -109,9 +203,9 @@ main {
 }
 
 .chart-card {
-    background-color: #FFF;
+    background-color: var(--chart-card-background-light);
     border-radius: 15px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px var(--box-shadow-strong-color-light);
     padding: 20px;
     margin-bottom: 20px; /* Spacing between stacked cards if not wrapping */
     width: 100%; /* Default width, can be adjusted */
@@ -120,16 +214,16 @@ main {
 }
 
 .chart-card h2 {
-    color: #BDE0FE; /* Lighter Pastel Blue */
+    color: var(--chart-card-header-text-light);
     margin-top: 0;
-    border-bottom: 2px solid #E0F7FA; /* Light Cyan for separation */
+    border-bottom: 2px solid var(--chart-card-header-border-light);
     padding-bottom: 10px;
 }
 
 .chart-card label {
     display: block;
     margin-bottom: 5px;
-    color: #555;
+    color: var(--chart-label-text-light);
     font-weight: bold;
 }
 
@@ -138,7 +232,9 @@ main {
     width: calc(100% - 22px); /* Full width minus padding and border */
     padding: 10px;
     margin-bottom: 15px;
-    border: 1px solid #BDB2FF; /* Pastel Purple */
+    border: 1px solid var(--input-border-light);
+    background-color: var(--input-background-light);
+    color: var(--input-text-light);
     border-radius: 8px;
     box-sizing: border-box;
     transition: border-color 0.3s ease;
@@ -146,7 +242,7 @@ main {
 
 .chart-card input[type="number"]:focus,
 .chart-card input[type="text"]:focus {
-    border-color: #A2D2FF; /* Pastel Blue on focus */
+    border-color: var(--input-focus-border-light);
     outline: none;
 }
 
@@ -154,11 +250,11 @@ main {
     width: 100%; /* Full width */
     padding: 10px;
     margin-bottom: 15px;
-    border: 1px solid #BDB2FF; /* Pastel Purple, same as inputs */
+    border: 1px solid var(--input-border-light);
     border-radius: 8px;
     box-sizing: border-box;
-    background-color: white; /* Ensure background color for select */
-    color: #333; /* Text color */
+    background-color: var(--input-background-light);
+    color: var(--input-text-light);
     appearance: none; /* Remove default system appearance */
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -170,7 +266,7 @@ main {
 }
 
 .chart-card select:focus {
-    border-color: #A2D2FF; /* Pastel Blue on focus, same as inputs */
+    border-color: var(--input-focus-border-light);
     outline: none;
 }
 
@@ -180,7 +276,7 @@ main {
     appearance: none;
     width: 100%; /* Slider now takes full width as span is in label */
     height: 8px;
-    background: #E0F7FA; /* Light Cyan track */
+    background: var(--slider-track-background-light);
     border-radius: 5px;
     outline: none;
     opacity: 0.7;
@@ -198,35 +294,35 @@ main {
     appearance: none;
     width: 20px;
     height: 20px;
-    background: #FFC8DD; /* Pastel Pink thumb */
+    background: var(--slider-thumb-background-light);
     border-radius: 50%;
     cursor: pointer;
-    border: 2px solid #FFF; /* White border for thumb */
-    box-shadow: 0 0 2px rgba(0,0,0,0.3);
+    border: 2px solid var(--slider-thumb-border-light);
+    box-shadow: 0 0 2px var(--box-shadow-color-light);
 }
 
 .chart-card input[type="range"]::-moz-range-thumb {
     width: 18px; /* Slightly smaller for Firefox if needed */
     height: 18px;
-    background: #FFC8DD; /* Pastel Pink thumb */
+    background: var(--slider-thumb-background-light);
     border-radius: 50%;
     cursor: pointer;
-    border: 2px solid #FFF;
-    box-shadow: 0 0 2px rgba(0,0,0,0.3);
+    border: 2px solid var(--slider-thumb-border-light);
+    box-shadow: 0 0 2px var(--box-shadow-color-light);
 }
 
 /* Style for the span displaying slider value (now inside label) */
 .chart-card label span { /* More specific selector if needed, or rely on .input-group span */
     display: inline-block;
-    min-width: 75px; 
-    text-align: left; 
+    min-width: 75px;
+    text-align: left;
     margin-left: 8px; /* Adjusted margin for being inside label */
-    padding: 2px 5px; 
+    padding: 2px 5px;
     font-size: 0.9em;
-    color: #444; 
-    background-color: #F0FAFC; 
-    border-radius: 4px; 
-    border: 1px solid #D0EBF2; 
+    color: var(--slider-value-text-light);
+    background-color: var(--slider-value-background-light);
+    border-radius: 4px;
+    border: 1px solid var(--slider-value-border-light);
     vertical-align: baseline; /* Align with label text better */
     box-sizing: border-box;
     font-weight: normal; /* Labels are bold, make span normal weight */
@@ -240,10 +336,10 @@ main {
     margin-left: 8px;
     padding: 2px 5px;
     font-size: 0.9em;
-    color: #444;
-    background-color: #F0FAFC;
+    color: var(--slider-value-text-light);
+    background-color: var(--slider-value-background-light);
     border-radius: 4px;
-    border: 1px solid #D0EBF2;
+    border: 1px solid var(--slider-value-border-light);
     vertical-align: baseline;
     box-sizing: border-box;
     font-weight: normal;
@@ -258,8 +354,8 @@ main {
 }
 
 .chart-card button {
-    background-color: #FFC8DD; /* Pastel Pink */
-    color: white;
+    background-color: var(--button-primary-background-light);
+    color: var(--button-primary-text-light);
     border: none;
     padding: 12px 20px;
     text-align: center;
@@ -272,12 +368,12 @@ main {
 }
 
 .chart-card button:hover {
-    background-color: #FFAFCC; /* Lighter Pastel Pink */
+    background-color: var(--button-primary-hover-background-light);
 }
 
 .chart-card .remove-expense-btn {
-    background-color: #FF6B6B; /* A soft red */
-    color: white;
+    background-color: var(--button-danger-background-light);
+    color: var(--button-danger-text-light);
     padding: 5px 10px; /* Smaller padding */
     font-size: 12px; /* Smaller font */
     border-radius: 5px;
@@ -285,12 +381,12 @@ main {
 }
 
 .chart-card .remove-expense-btn:hover {
-    background-color: #FF4C4C; /* Darker soft red on hover */
+    background-color: var(--button-danger-hover-background-light);
 }
 
 .chart-card .edit-expense-btn {
-    background-color: #FFEC8B; /* Pastel Yellow (LightGoldenrod1) */
-    color: #555; /* Darker text for better contrast on yellow */
+    background-color: var(--button-edit-background-light);
+    color: var(--button-edit-text-light);
     padding: 5px 10px; /* Same as remove */
     font-size: 12px; /* Same as remove */
     border-radius: 5px; /* Same as remove */
@@ -300,13 +396,13 @@ main {
 }
 
 .chart-card .edit-expense-btn:hover {
-    background-color: #EEDC82; /* Darker Pastel Yellow (LightGoldenrod2) */
+    background-color: var(--button-edit-hover-background-light);
 }
 
 /* Style for Edit Activity Button (can reuse or adapt .edit-expense-btn) */
 .chart-card .edit-activity-btn {
-    background-color: #FFEC8B; /* Pastel Yellow */
-    color: #555;
+    background-color: var(--button-edit-background-light);
+    color: var(--button-edit-text-light);
     padding: 5px 10px;
     font-size: 12px;
     border-radius: 5px;
@@ -317,18 +413,18 @@ main {
 }
 
 .chart-card .edit-activity-btn:hover {
-    background-color: #EEDC82; /* Darker Pastel Yellow */
+    background-color: var(--button-edit-hover-background-light);
 }
 
 .chart-card .output-area p {
     font-size: 1.1em;
-    color: #333;
+    color: var(--text-color-light);
     margin: 10px 0;
 }
 
 .chart-card .output-area span {
     font-weight: bold;
-    color: #2a9d8f; /* A contrasting teal for output values */
+    color: var(--output-value-text-light);
 }
 
 .chart-card table {
@@ -338,18 +434,18 @@ main {
 }
 
 .chart-card th, .chart-card td {
-    border: 1px solid #E0F7FA; /* Light Cyan */
+    border: 1px solid var(--table-border-light);
     padding: 8px;
     text-align: left;
 }
 
 .chart-card th {
-    background-color: #CAE9FF; /* Very Light Pastel Blue */
-    color: #333;
+    background-color: var(--table-header-background-light);
+    color: var(--table-header-text-light);
 }
 
 .chart-card tr:nth-child(even) {
-    background-color: #F8FDFF; /* Off-white for alternate rows */
+    background-color: var(--table-row-even-background-light);
 }
 
 .chart-canvas-container {
@@ -364,12 +460,12 @@ main {
 }
 
 footer {
-    background-color: #A2D2FF; /* Pastel Blue */
-    color: white;
+    background-color: var(--footer-background-light);
+    color: var(--text-on-primary-light);
     text-align: center;
     padding: 1em 0;
     margin-top: auto; /* Pushes footer to the bottom */
-    box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 -2px 4px var(--box-shadow-color-light);
     transition: margin-left 0.3s ease-in-out; /* For desktop shift */
 }
 
@@ -402,7 +498,7 @@ footer {
 
 /* Styles for Fieldset Grouping */
 .chart-card fieldset.schedule-group {
-    border: 1px solid #BDE0FE; /* Lighter Pastel Blue border */
+    border: 1px solid var(--fieldset-border-light);
     border-radius: 8px;
     padding: 15px;
     margin-bottom: 20px; /* Space before next section */
@@ -410,8 +506,230 @@ footer {
 
 .chart-card fieldset.schedule-group legend {
     font-weight: bold;
-    color: #A2D2FF; /* Pastel Blue, like header */
+    color: var(--fieldset-legend-text-light);
     padding: 0 10px;
     margin-left: 5px; /* Align with fieldset padding */
     font-size: 1.1em;
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+    background-color: var(--background-color-dark);
+    color: var(--text-color-dark);
+}
+
+body.dark-mode #sidebarContainer .sidebar-nav {
+    background-color: var(--sidebar-background-dark);
+    box-shadow: 2px 0 5px var(--box-shadow-color-dark);
+}
+
+body.dark-mode #sidebarContainer .sidebar-link {
+    color: var(--text-color-dark);
+    border-bottom-color: var(--sidebar-border-dark);
+}
+
+body.dark-mode #sidebarContainer .sidebar-link:hover,
+body.dark-mode #sidebarContainer .sidebar-link:focus {
+    background-color: var(--sidebar-link-hover-background-dark);
+    color: var(--text-on-primary-dark);
+}
+
+body.dark-mode #sidebarContainer .sidebar-link.active {
+    background-color: var(--sidebar-link-active-background-dark);
+    color: var(--sidebar-link-active-text-dark);
+}
+
+body.dark-mode #hamburgerMenu {
+    color: var(--hamburger-icon-color-dark);
+}
+
+body.dark-mode header {
+    background-color: var(--header-background-dark);
+    box-shadow: 0 2px 4px var(--box-shadow-color-dark);
+}
+
+body.dark-mode header h1 {
+    color: var(--text-on-primary-dark);
+}
+
+body.dark-mode .chart-card {
+    background-color: var(--chart-card-background-dark);
+    box-shadow: 0 4px 12px var(--box-shadow-strong-color-dark);
+}
+
+body.dark-mode .chart-card h2 {
+    color: var(--chart-card-header-text-dark);
+    border-bottom-color: var(--chart-card-header-border-dark);
+}
+
+body.dark-mode .chart-card label {
+    color: var(--chart-label-text-dark);
+}
+
+body.dark-mode .chart-card input[type="number"],
+body.dark-mode .chart-card input[type="text"],
+body.dark-mode .chart-card input[type="date"],
+body.dark-mode .chart-card textarea { /* Added textarea */
+    border-color: var(--input-border-dark);
+    background-color: var(--input-background-dark);
+    color: var(--input-text-dark);
+}
+
+/* Styling for placeholder text in dark mode */
+body.dark-mode .chart-card input::placeholder {
+    color: var(--chart-label-text-dark); /* Using a slightly lighter color, like labels */
+    opacity: 0.7;
+}
+/* Add for textarea if used elsewhere, for consistency */
+body.dark-mode .chart-card textarea::placeholder {
+    color: var(--chart-label-text-dark);
+    opacity: 0.7;
+}
+
+
+body.dark-mode .chart-card input[type="number"]:focus,
+body.dark-mode .chart-card input[type="text"]:focus,
+body.dark-mode .chart-card input[type="date"]:focus,
+body.dark-mode .chart-card textarea:focus { /* Added textarea */
+    border-color: var(--input-focus-border-dark);
+}
+
+body.dark-mode .chart-card select {
+    border-color: var(--input-border-dark);
+    background-color: var(--input-background-dark);
+    color: var(--input-text-dark);
+    /* Reverted to a static color for dark mode select arrow, using the --select-arrow-color-dark value */
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23b0b0b0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.4-5.4-13z%22%2F%3E%3C%2Fsvg%3E');
+}
+
+body.dark-mode .chart-card select:focus {
+    border-color: var(--input-focus-border-dark);
+}
+
+body.dark-mode .chart-card input[type="range"] {
+    background: var(--slider-track-background-dark);
+}
+
+body.dark-mode .chart-card input[type="range"]::-webkit-slider-thumb {
+    background: var(--slider-thumb-background-dark);
+    border-color: var(--slider-thumb-border-dark);
+    box-shadow: 0 0 2px var(--box-shadow-color-dark);
+}
+
+body.dark-mode .chart-card input[type="range"]::-moz-range-thumb {
+    background: var(--slider-thumb-background-dark);
+    border-color: var(--slider-thumb-border-dark);
+    box-shadow: 0 0 2px var(--box-shadow-color-dark);
+}
+
+body.dark-mode .chart-card label span {
+    color: var(--slider-value-text-dark);
+    background-color: var(--slider-value-background-dark);
+    border-color: var(--slider-value-border-dark);
+}
+
+body.dark-mode .chart-card input[type="number"].slider-value {
+    color: var(--slider-value-text-dark);
+    background-color: var(--slider-value-background-dark);
+    border-color: var(--slider-value-border-dark);
+}
+
+body.dark-mode .chart-card button {
+    background-color: var(--button-primary-background-dark);
+    color: var(--button-primary-text-dark);
+}
+
+body.dark-mode .chart-card button:hover {
+    background-color: var(--button-primary-hover-background-dark);
+}
+
+body.dark-mode .chart-card .remove-expense-btn {
+    background-color: var(--button-danger-background-dark);
+    color: var(--button-danger-text-dark);
+}
+
+body.dark-mode .chart-card .remove-expense-btn:hover {
+    background-color: var(--button-danger-hover-background-dark);
+}
+
+body.dark-mode .chart-card .edit-expense-btn,
+body.dark-mode .chart-card .edit-activity-btn {
+    background-color: var(--button-edit-background-dark);
+    color: var(--button-edit-text-dark);
+}
+
+body.dark-mode .chart-card .edit-expense-btn:hover,
+body.dark-mode .chart-card .edit-activity-btn:hover {
+    background-color: var(--button-edit-hover-background-dark);
+}
+
+body.dark-mode .chart-card .output-area p {
+    color: var(--text-color-dark);
+}
+
+body.dark-mode .chart-card .output-area span {
+    color: var(--output-value-text-dark);
+}
+
+body.dark-mode .chart-card table {
+    /* Table borders and text are inherited or already general enough */
+}
+
+body.dark-mode .chart-card th,
+body.dark-mode .chart-card td {
+    border-color: var(--table-border-dark);
+}
+
+body.dark-mode .chart-card th {
+    background-color: var(--table-header-background-dark);
+    color: var(--table-header-text-dark);
+}
+
+body.dark-mode .chart-card tr:nth-child(even) {
+    background-color: var(--table-row-even-background-dark);
+}
+
+body.dark-mode footer {
+    background-color: var(--footer-background-dark);
+    color: var(--text-on-primary-dark);
+    box-shadow: 0 -2px 4px var(--box-shadow-color-dark);
+}
+
+body.dark-mode .chart-card fieldset.schedule-group {
+    border-color: var(--fieldset-border-dark);
+}
+
+body.dark-mode .chart-card fieldset.schedule-group legend {
+    color: var(--fieldset-legend-text-dark);
+}
+
+/* Theme Switcher Button Style */
+#themeSwitcherButton {
+    display: block;
+    width: 100%;
+    padding: 12px 20px;
+    font-family: inherit;
+    font-size: inherit;
+    text-align: left;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--sidebar-border-light);
+    color: var(--text-color-light); /* Matches .sidebar-link color */
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+#themeSwitcherButton:hover {
+    background-color: var(--sidebar-link-hover-background-light);
+    color: var(--text-on-primary-light); /* Matches .sidebar-link:hover color */
+}
+
+body.dark-mode #themeSwitcherButton {
+    color: var(--text-color-dark);
+    border-bottom-color: var(--sidebar-border-dark);
+}
+
+body.dark-mode #themeSwitcherButton:hover {
+    background-color: var(--sidebar-link-hover-background-dark);
+    color: var(--text-on-primary-dark);
 }
