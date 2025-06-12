@@ -99,20 +99,46 @@ function initFreetimeCalculator() {
     });
 
     function renderCustomActivities() {
-        customActivitiesTableBody.innerHTML = '';
+        customActivitiesTableBody.innerHTML = ''; // Clear existing rows
         customActivities.forEach((activity, index) => {
             const dailyAvg = convertToAverageDailyHours(activity.time, activity.occurrence);
             const row = customActivitiesTableBody.insertRow();
-            row.innerHTML = `
-                <td>${activity.name}</td>
-                <td>${activity.time.toFixed(1)}</td>
-                <td>${activity.occurrence.charAt(0).toUpperCase() + activity.occurrence.slice(1)}</td>
-                <td>${dailyAvg.toFixed(2)}</td>
-                <td class="actions-cell">
-                    <button type="button" class="edit-activity-btn" data-index="${index}">✏️</button>
-                    <button type="button" class="remove-expense-btn" data-index="${index}">❌</button>
-                </td>
-            `;
+
+            // Activity Name Cell (Using textContent)
+            const nameCell = row.insertCell();
+            nameCell.textContent = activity.name;
+
+            // Activity Time Cell
+            const timeCell = row.insertCell();
+            timeCell.textContent = activity.time.toFixed(1);
+
+            // Activity Occurrence Cell
+            const occurrenceCell = row.insertCell();
+            occurrenceCell.textContent = activity.occurrence.charAt(0).toUpperCase() + activity.occurrence.slice(1);
+
+            // Daily Average Cell
+            const dailyAvgCell = row.insertCell();
+            dailyAvgCell.textContent = dailyAvg.toFixed(2);
+
+            // Actions Cell
+            const actionsCell = row.insertCell();
+            actionsCell.classList.add('actions-cell');
+
+            const editButton = document.createElement('button');
+            editButton.type = 'button';
+            editButton.classList.add('edit-activity-btn');
+            editButton.dataset.index = index;
+            editButton.textContent = '✏️'; // Using textContent for button text is also safer
+
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            // Assuming 'remove-expense-btn' is a shared class for styling, if it's specific to expenses, consider a more generic name or specific styling.
+            removeButton.classList.add('remove-expense-btn');
+            removeButton.dataset.index = index;
+            removeButton.textContent = '❌'; // Using textContent
+
+            actionsCell.appendChild(editButton);
+            actionsCell.appendChild(removeButton);
         });
     }
     

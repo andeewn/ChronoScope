@@ -65,7 +65,11 @@ function loadSidebar() {
         })
         .catch(error => {
             console.error("Error loading sidebar:", error);
-            sidebarContainer.innerHTML = `<p style="color: red;">Error loading sidebar: ${error.message}</p>`;
+            sidebarContainer.innerHTML = ''; // Clear previous content
+            const p = document.createElement('p');
+            p.style.color = 'red';
+            p.textContent = 'Error loading sidebar: ' + error.message;
+            sidebarContainer.appendChild(p);
         });
 }
 
@@ -194,7 +198,11 @@ function loadChartContent(chartHtmlFile, containerId, chartJsFile, onProcessedCa
         })
         .catch(error => {
             console.error(`Error loading chart HTML content into ${containerId}:`, error);
-            container.innerHTML = `<p style="color: red;">Error loading chart HTML: ${error.message}</p>`;
+            container.innerHTML = ''; // Clear previous content
+            const p = document.createElement('p');
+            p.style.color = 'red';
+            p.textContent = 'Error loading chart HTML: ' + error.message;
+            container.appendChild(p);
             if (onProcessedCallback) onProcessedCallback(false);
         });
 }
