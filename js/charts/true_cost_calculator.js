@@ -7,6 +7,8 @@ if (typeof Chart === 'undefined') {
 }
 
 function initializeTrueCostCalculator() {
+    const LOCAL_STORAGE_KEY_TRUE_COST = 'trueCostCalculatorInputs';
+
     const itemPriceEl = document.getElementById('itemPrice');
     const downPaymentEl = document.getElementById('downPayment');
     const loanInterestRateEl = document.getElementById('loanInterestRate');
@@ -74,6 +76,17 @@ function initializeTrueCostCalculator() {
         el.value = formatForInputDisplay(el.value);
     });
 
+    function saveInputsToLocalStorage() {
+        const inputValues = {
+            itemPrice: parseInputFormattedValue(itemPriceEl.value),
+            downPayment: parseInputFormattedValue(downPaymentEl.value),
+            loanInterestRate: loanInterestRateEl.value,
+            loanTermYears: loanTermYearsEl.value,
+            investmentInterestRate: investmentInterestRateEl.value
+        };
+        localStorage.setItem(LOCAL_STORAGE_KEY_TRUE_COST, JSON.stringify(inputValues));
+    }
+
     function calculateAndDisplayTrueCost() {
         const itemPrice = parseInputFormattedValue(itemPriceEl.value);
         const downPayment = parseInputFormattedValue(downPaymentEl.value);
@@ -94,6 +107,8 @@ function initializeTrueCostCalculator() {
             alert('Down payment cannot exceed the item price.');
             return;
         }
+
+        saveInputsToLocalStorage(); // Save valid inputs
 
         // 1. Direct Purchase Price
         const directPurchasePrice = itemPrice;
@@ -225,12 +240,56 @@ function initializeTrueCostCalculator() {
     });
     
     // Format initial input values that need it
-    [itemPriceEl, downPaymentEl].forEach(el => {
-        el.value = formatForInputDisplay(el.value);
-    });
+    // This will be done *after* attempting to load from localStorage,
+    // so it acts as a fallback for first-time use or if localStorage is empty.
+    // The load function will handle formatting if data is loaded.
+
+    function loadInputsFromLocalStorage() {
+        const savedData = localStorage.getItem(LOCAL_STORAGE_KEY_TRUE_COST);
+        if (savedData) {
+            try {
+                const loadedInputs = JSON.parse(savedData);
+
+                // Set input values, formatting where necessary
+                itemPriceEl.value = formatForInputDisplay(loadedInputs.itemPrice || itemPriceEl.value);
+                downPaymentEl.value = formatForInputDisplay(loadedInputs.downPayment || downPaymentEl.value);
+                loanInterestRateEl.value = loadedInputs.loanInterestRate || loanInterestRateEl.value;
+                loanTermYearsEl.value = loadedInputs.loanTermYears || loanTermYearsEl.value;
+                investmentInterestRateEl.value = loadedInputs.investmentInterestRate || investmentInterestRateEl.value;
+
+                // No need to call calculateAndDisplayTrueCost here, it's called after this.
+                return true; // Indicate that data was loaded
+            } catch (e) {
+                console.error("Error parsing saved true cost data from localStorage:", e);
+                return false; // Indicate error or no data loaded
+            }
+        }
+        return false; // Indicate no data loaded
+    }
+
+    const dataLoaded = loadInputsFromLocalStorage();
+
+    // Format initial input values if no data was loaded from localStorage
+    // and they were not formatted by the load function.
+    if (!dataLoaded) {
+        [itemPriceEl, downPaymentEl].forEach(el => {
+            // Only format if the value hasn't been set by default HTML values already
+            // or if it's not empty. This avoids formatting an empty string which might result in "0".
+            // The original loop `el.value = formatForInputDisplay(el.value);` was fine.
+            // Let's ensure it only runs if not loaded, to prevent double formatting if defaults were "0"
+            if (el.value) { // Check if there's a default value to format
+                 el.value = formatForInputDisplay(el.value);
+            }
+        });
+    }
 
     // Perform an initial calculation if default values are present and valid
+    // This will use loaded values if dataLoaded is true, or default/formatted values otherwise.
     if (itemPriceEl.value && loanInterestRateEl.value && loanTermYearsEl.value && investmentInterestRateEl.value) {
-        calculateAndDisplayTrueCost();
+        // Check if the itemPrice has content. parseInputFormattedValue will return NaN for empty or non-numeric after format.
+        const priceForCheck = parseInputFormattedValue(itemPriceEl.value);
+        if (!isNaN(priceForCheck) && priceForCheck > 0) { // Ensure there's a valid price to calculate with
+            calculateAndDisplayTrueCost();
+        }
     }
 }

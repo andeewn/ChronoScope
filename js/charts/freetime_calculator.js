@@ -1,4 +1,6 @@
 function initFreetimeCalculator() {
+    const LOCAL_STORAGE_KEY_FREETIME = 'freetimeCalculatorInputs';
+
     const sleepTimeInput = document.getElementById('sleepTime');
     const sleepTimeValueSpan = document.getElementById('sleepTimeValue');
     const workSchoolTimeInput = document.getElementById('workSchoolTime');
@@ -89,6 +91,7 @@ function initFreetimeCalculator() {
             // Add new activity
             customActivities.push({ name, time, occurrence });
         }
+        saveInputsToLocalStorage(); // Save after adding/updating custom activity
 
         renderCustomActivities();
         runAllCalculations();
@@ -97,6 +100,18 @@ function initFreetimeCalculator() {
         customActivityOccurrenceSelect.value = 'daily'; // Reset dropdown
         customActivityNameInput.focus();
     });
+
+    function saveInputsToLocalStorage() {
+        const inputValues = {
+            sleepTime: sleepTimeInput.value,
+            workSchoolTime: workSchoolTimeInput.value,
+            workSchoolDays: workSchoolDaysInput.value,
+            personalCareTime: personalCareTimeInput.value,
+            choresTime: choresTimeInput.value,
+            customActivities: customActivities
+        };
+        localStorage.setItem(LOCAL_STORAGE_KEY_FREETIME, JSON.stringify(inputValues));
+    }
 
     function renderCustomActivities() {
         customActivitiesTableBody.innerHTML = '';
@@ -155,6 +170,7 @@ function initFreetimeCalculator() {
         }
 
         customActivities.splice(index, 1);
+        saveInputsToLocalStorage(); // Save after removing custom activity
         renderCustomActivities();
         runAllCalculations();
     }
@@ -224,6 +240,7 @@ function initFreetimeCalculator() {
         updatePieChartInstance(weekendChart, weekendPieChartCanvas, 'Typical Weekend Day', [
             sleepHours, 0, personalCareHours, choresHours, weekendCustomHours, Math.max(0, weekendFreetime)
         ]);
+        saveInputsToLocalStorage(); // Save at the end of all calculations
     }
 
     function updatePieChartInstance(chartInstance, canvasElement, title, dataValues) {
@@ -264,7 +281,41 @@ function initFreetimeCalculator() {
         }
     }
 
+    function loadInputsFromLocalStorage() {
+        const savedData = localStorage.getItem(LOCAL_STORAGE_KEY_FREETIME);
+        if (savedData) {
+            try {
+                const loadedInputs = JSON.parse(savedData);
+
+                // Set input values, falling back to current or default if necessary
+                sleepTimeInput.value = loadedInputs.sleepTime || sleepTimeInput.value;
+                workSchoolTimeInput.value = loadedInputs.workSchoolTime || workSchoolTimeInput.value;
+                workSchoolDaysInput.value = loadedInputs.workSchoolDays || workSchoolDaysInput.value;
+                personalCareTimeInput.value = loadedInputs.personalCareTime || personalCareTimeInput.value;
+                choresTimeInput.value = loadedInputs.choresTime || choresTimeInput.value;
+
+                // Manually update display spans to avoid triggering runAllCalculations multiple times
+                sleepTimeValueSpan.textContent = `${parseFloat(sleepTimeInput.value).toFixed(1)} hours`;
+                workSchoolTimeValueSpan.textContent = `${parseFloat(workSchoolTimeInput.value).toFixed(1)} hours`;
+                const workDaysVal = parseInt(workSchoolDaysInput.value);
+                workSchoolDaysValueSpan.textContent = `${workDaysVal} ${workDaysVal === 1 ? "day" : "days"}`;
+                personalCareTimeValueSpan.textContent = `${parseFloat(personalCareTimeInput.value).toFixed(1)} hours`;
+                choresTimeValueSpan.textContent = `${parseFloat(choresTimeInput.value).toFixed(1)} hours`;
+
+                if (Array.isArray(loadedInputs.customActivities)) {
+                    customActivities = loadedInputs.customActivities;
+                }
+            } catch (e) {
+                console.error("Error parsing saved freetime data from localStorage:", e);
+            }
+        }
+    }
+
+    // Load saved data first.
+    loadInputsFromLocalStorage();
+    // Then render activities (which might have been loaded)
     renderCustomActivities();
+    // Finally, run all calculations and update charts with potentially loaded data.
     runAllCalculations();
 
     customActivityTimeInput.addEventListener('input', function(e) {

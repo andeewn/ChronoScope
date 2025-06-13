@@ -1,3 +1,5 @@
+const LOCAL_STORAGE_KEY_VACATION_HOME = 'vacationHomeCalculatorInputs';
+
 // Helper functions (can be global or part of a module pattern)
 function formatCurrencyInput() {
     let value = this.value.replace(/\s/g, ''); // Remove existing spaces
@@ -15,8 +17,67 @@ function formatSEK(amount) {
     return `${Math.round(amount).toLocaleString('sv-SE').replace(/,/g, ' ')} SEK`;
 }
 
+function saveInputsToLocalStorage() {
+    const inputIds = [
+        'purchasePrice', 'downPaymentPercentage', 'annualPriceIncrease',
+        'interestRate', 'amortizationRequirement', 'avgWeeklyRentalPrice',
+        'numRentalWeeks', 'operatingCosts', 'insuranceCost',
+        'maintenanceCostPercentage', 'propertyFee', 'inspectionCost',
+        'bankAdminFees', 'analysisPeriodYears'
+    ];
+    const inputValues = {};
+    inputIds.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            inputValues[id] = element.value;
+        }
+    });
+    localStorage.setItem(LOCAL_STORAGE_KEY_VACATION_HOME, JSON.stringify(inputValues));
+}
+
+function loadInputsFromLocalStorage() {
+    const savedData = localStorage.getItem(LOCAL_STORAGE_KEY_VACATION_HOME);
+    const allInputIds = [
+        'purchasePrice', 'downPaymentPercentage', 'annualPriceIncrease',
+        'interestRate', 'amortizationRequirement', 'avgWeeklyRentalPrice',
+        'numRentalWeeks', 'operatingCosts', 'insuranceCost',
+        'maintenanceCostPercentage', 'propertyFee', 'inspectionCost',
+        'bankAdminFees', 'analysisPeriodYears'
+    ];
+    const currencyInputIds = [
+        'purchasePrice', 'avgWeeklyRentalPrice', 'operatingCosts',
+        'insuranceCost', 'propertyFee', 'inspectionCost', 'bankAdminFees'
+    ];
+
+    if (savedData) {
+        try {
+            const loadedInputs = JSON.parse(savedData);
+            allInputIds.forEach(id => {
+                const element = document.getElementById(id);
+                if (element && loadedInputs[id] !== undefined) {
+                    element.value = loadedInputs[id];
+                }
+            });
+
+            // After setting all values, format the currency inputs
+            currencyInputIds.forEach(id => {
+                const element = document.getElementById(id);
+                if (element && element.value) { // Check if element exists and has a value to format
+                    formatCurrencyInput.call(element);
+                }
+            });
+            return true; // Data loaded and processed
+        } catch (e) {
+            console.error("Error parsing saved vacation home data from localStorage:", e);
+            return false; // Error occurred
+        }
+    }
+    return false; // No data found
+}
+
 // Main calculation function, made global for access from main.js
 function calculateVacationHomeFinances() {
+    saveInputsToLocalStorage(); // Save inputs at the beginning
     // 1. Get Input Values
     const purchasePrice = parseFormattedNumber(document.getElementById('purchasePrice').value);
     const downPaymentPercentage = parseFloat(document.getElementById('downPaymentPercentage').value) / 100;
@@ -274,18 +335,26 @@ function setupVacationHomeListeners() {
     });
 
     // Initial formatting for currency inputs on load
-    const currencyInputs = [
-        'purchasePrice', 'avgWeeklyRentalPrice', 'operatingCosts',
-        'insuranceCost', 'propertyFee', 'inspectionCost', 'bankAdminFees'
-    ];
-    currencyInputs.forEach(id => {
-        const input = document.getElementById(id);
-        if (input) {
-            formatCurrencyInput.call(input);
-        }
-    });
+    // This is now conditional based on whether data was loaded.
+    // If dataLoaded is true, loadInputsFromLocalStorage handled formatting.
+    if (!dataLoaded) {
+        const currencyInputsIds = [ // Renamed to avoid conflict
+            'purchasePrice', 'avgWeeklyRentalPrice', 'operatingCosts',
+            'insuranceCost', 'propertyFee', 'inspectionCost', 'bankAdminFees'
+        ];
+        currencyInputsIds.forEach(id => {
+            const input = document.getElementById(id);
+            if (input && input.value) { // Check if input exists and has a value
+                formatCurrencyInput.call(input);
+            }
+        });
+    }
 }
 
 // Call setup listeners and initial calculation when the script is loaded
-document.addEventListener('DOMContentLoaded', setupVacationHomeListeners);
-document.addEventListener('DOMContentLoaded', calculateVacationHomeFinances); // Initial calculation on page load
+let dataLoaded = false; // Variable to track if data was loaded
+document.addEventListener('DOMContentLoaded', () => {
+    dataLoaded = loadInputsFromLocalStorage(); // Load first
+    setupVacationHomeListeners();          // Then setup listeners (which now conditionally formats)
+    calculateVacationHomeFinances();       // Then calculate with loaded/default values
+});

@@ -534,6 +534,60 @@ body.dark-mode #sidebarContainer .sidebar-link:focus {
     color: var(--text-on-primary-dark);
 }
 
+/* Clear All Saved Data Button Style */
+.sidebar-button {
+    display: block;
+    width: calc(100% - 40px); /* Full width minus padding (20px left/right) */
+    padding: 12px 20px;
+    margin: 10px 20px; /* Consistent with sidebar link padding/margins */
+    font-family: inherit;
+    font-size: inherit; /* Matches other sidebar text */
+    text-align: left;
+    background-color: var(--button-danger-background-light); /* Using danger color for a destructive action */
+    color: var(--button-danger-text-light);
+    border: none;
+    border-radius: 4px; /* Consistent with other buttons if any, or a new style */
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-button:hover {
+    background-color: var(--button-danger-hover-background-light);
+}
+
+/* Dark mode styling for the clear button */
+body.dark-mode .sidebar-button {
+    background-color: var(--button-danger-background-dark);
+    color: var(--button-danger-text-dark);
+}
+
+body.dark-mode .sidebar-button:hover {
+    background-color: var(--button-danger-hover-background-dark);
+}
+
+/* Styling for individual calculator clear buttons */
+.calculator-button.clear-button {
+    background-color: var(--button-danger-background-light); /* Using danger color for consistency */
+    color: var(--button-danger-text-light);
+    margin-top: 10px; /* Add some space above */
+    margin-left: 5px; /* Add some space to the side if next to another button */
+    padding: 10px 15px; /* Slightly smaller padding than main calc button */
+    font-size: 0.9em; /* Slightly smaller font */
+}
+
+.calculator-button.clear-button:hover {
+    background-color: var(--button-danger-hover-background-light);
+}
+
+body.dark-mode .calculator-button.clear-button {
+    background-color: var(--button-danger-background-dark);
+    color: var(--button-danger-text-dark);
+}
+
+body.dark-mode .calculator-button.clear-button:hover {
+    background-color: var(--button-danger-hover-background-dark);
+}
+
 body.dark-mode #sidebarContainer .sidebar-link.active {
     background-color: var(--sidebar-link-active-background-dark);
     color: var(--sidebar-link-active-text-dark);

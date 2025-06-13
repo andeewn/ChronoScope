@@ -8,6 +8,9 @@ if (typeof Chart === 'undefined') {
 }
 
 function initializeExpensesCalculator() {
+    const LOCAL_STORAGE_KEY_EXPENSES = 'expensesCalculatorExpensesList';
+    const LOCAL_STORAGE_KEY_PROJECTION = 'expensesCalculatorProjectionYears';
+
     const expenseNameEl = document.getElementById('expenseName');
     const expenseCostEl = document.getElementById('expenseCost');
     const expenseOccurrenceEl = document.getElementById('expenseOccurrence');
@@ -131,6 +134,7 @@ function initializeExpensesCalculator() {
         if (projectionYearsValueDisplay) {
             projectionYearsValueDisplay.value = projectionYearsEl.value; // Update number input
         }
+        saveProjectionYearsToLocalStorage(); // Save on slider change
         // Trigger recalculation if there are expenses
         if (expenses.length > 0) {
             calculateAndDisplayProjection();
@@ -177,6 +181,7 @@ function initializeExpensesCalculator() {
             // If not, we might need to call calculateAndDisplayProjection() directly here.
             // Let's test this first.
         }
+        saveProjectionYearsToLocalStorage(); // Save on number input change (after validation)
 
         // Always trigger recalculation if there are expenses, as the value might have changed
         // or been corrected. This ensures the chart/table updates.
@@ -256,6 +261,7 @@ function initializeExpensesCalculator() {
         }
 
         updateCurrentExpensesDisplay(); // Refresh table and totals
+        saveExpensesListToLocalStorage(); // Save expenses list
         // Clear form fields after add or update
         expenseNameEl.value = '';
         expenseCostEl.value = '';
@@ -343,6 +349,7 @@ function initializeExpensesCalculator() {
 
         expenses = expenses.filter(exp => exp.id !== expenseIdToRemove);
         updateCurrentExpensesDisplay(); // Refresh table and totals
+        saveExpensesListToLocalStorage(); // Save expenses list
 
         // Immediately recalculate projection if years are set and expenses exist
         if (parseInt(projectionYearsEl.value) > 0 && expenses.length > 0) {
@@ -495,4 +502,66 @@ function initializeExpensesCalculator() {
     
     // Initial call to set up the "Current Added Expenses" table (e.g., show "No expenses added yet.")
     updateCurrentExpensesDisplay();
+
+    // --- LocalStorage Save Functions ---
+    function saveExpensesListToLocalStorage() {
+        localStorage.setItem(LOCAL_STORAGE_KEY_EXPENSES, JSON.stringify(expenses));
+    }
+
+    function saveProjectionYearsToLocalStorage() {
+        localStorage.setItem(LOCAL_STORAGE_KEY_PROJECTION, projectionYearsEl.value);
+    }
+
+    // --- LocalStorage Load Functions ---
+    function loadExpensesListFromLocalStorage() {
+        const savedExpensesData = localStorage.getItem(LOCAL_STORAGE_KEY_EXPENSES);
+        if (savedExpensesData) {
+            try {
+                const savedExpenses = JSON.parse(savedExpensesData);
+                if (Array.isArray(savedExpenses)) {
+                    expenses = savedExpenses;
+                    // Ensure annualCost is calculated for loaded expenses if not stored
+                    // or if it might need recalculation due to logic changes.
+                    // For now, assuming stored expenses are complete.
+                    // If expenses objects change structure, migration logic might be needed here.
+                }
+            } catch (e) {
+                console.error("Error parsing saved expenses from localStorage:", e);
+                // Optionally clear the corrupted data: localStorage.removeItem(LOCAL_STORAGE_KEY_EXPENSES);
+            }
+        }
+        // Always update display, even if loading failed and expenses is empty or default
+        updateCurrentExpensesDisplay();
+    }
+
+    function loadProjectionYearsFromLocalStorage() {
+        const savedYears = localStorage.getItem(LOCAL_STORAGE_KEY_PROJECTION);
+        if (savedYears) {
+            const yearsValue = parseInt(savedYears, 10);
+            const min = parseInt(projectionYearsEl.min, 10);
+            const max = parseInt(projectionYearsEl.max, 10);
+
+            if (!isNaN(yearsValue) && yearsValue >= min && yearsValue <= max) {
+                projectionYearsEl.value = yearsValue;
+                if (projectionYearsValueDisplay) {
+                    projectionYearsValueDisplay.value = yearsValue;
+                }
+            } else {
+                console.warn("Saved projection years are out of valid range. Using default.");
+                // Optionally, update display to default slider value if saved one is invalid
+                if (projectionYearsValueDisplay) {
+                     projectionYearsValueDisplay.value = projectionYearsEl.value;
+                }
+            }
+        }
+    }
+
+    // Load saved data on initialization
+    loadExpensesListFromLocalStorage(); // This will call updateCurrentExpensesDisplay
+    loadProjectionYearsFromLocalStorage();
+
+    // Initial calculation if there are loaded expenses and valid projection years
+    if (expenses.length > 0 && projectionYearsEl.value && parseInt(projectionYearsEl.value) > 0) {
+        calculateAndDisplayProjection();
+    }
 }
