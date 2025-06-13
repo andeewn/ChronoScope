@@ -97,7 +97,7 @@ body {
     background-color: var(--background-color-light);
     color: var(--text-color-light);
     margin: 0;
-    padding: 0;
+    padding-top: 70px; /* Added padding to prevent content from being hidden by the fixed header */
     display: flex;
     flex-direction: column;
     min-height: 100vh;
@@ -108,9 +108,9 @@ body {
 #sidebarContainer .sidebar-nav { /* Target nav inside the container */
     background-color: var(--sidebar-background-light);
     width: 250px;
-    height: 100vh;
+    height: calc(100vh - 70px); /* Full height minus header height */
     position: fixed;
-    top: 0;
+    top: 70px; /* Positioned below the header */
     left: 0;
     padding: 20px 0;
     box-shadow: 2px 0 5px var(--box-shadow-color-light);
@@ -158,28 +158,61 @@ body.sidebar-open #sidebarContainer .sidebar-nav {
     background: transparent;
     border: none;
     cursor: pointer;
-    padding: 0 15px; /* Adjusted padding */
-    position: fixed; /* Changed from absolute to fixed */
-    top: 20px; /* Adjust top position for fixed */
-    left: 15px;
-    z-index: 1001; /* Above sidebar */
+    padding: 0 15px 0 20px; /* Align with sidebar text */
     line-height: 1; /* Ensure consistent height */
-    transform: none; /* Remove translateY as top is now fixed */
 }
 
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.header-button {
+    background-color: var(--button-primary-background-light);
+    color: var(--button-primary-text-light);
+    border: none;
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.header-button:hover {
+    background-color: var(--button-primary-hover-background-light);
+}
+
+#clearAllSavedDataBtn.header-button {
+    background-color: var(--button-danger-background-light);
+}
+
+#clearAllSavedDataBtn.header-button:hover {
+    background-color: var(--button-danger-hover-background-light);
+}
 
 header {
     background-color: var(--header-background-light);
-    padding: 1em 2em;
-    text-align: center;
+    padding: 0 2em 0 0; /* Remove left padding to allow hamburger to align */
     box-shadow: 0 2px 4px var(--box-shadow-color-light);
-    position: relative; /* For hamburger positioning context */
-    transition: margin-left 0.3s ease-in-out; /* For desktop shift */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    z-index: 1001; /* Higher than sidebar */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: width 0.3s ease-in-out, left 0.3s ease-in-out; /* Animate width and left for desktop shift */
+    box-sizing: border-box;
 }
 
 header h1 {
     margin: 0;
     color: var(--text-on-primary-light);
+    flex-grow: 1;
+    text-align: center;
 }
 
 main {
@@ -471,27 +504,15 @@ footer {
 
 /* Media Queries for Responsive Layout */
 @media (min-width: 769px) {
-    #hamburgerMenu {
-        display: none;
-    }
-
-    #sidebarContainer .sidebar-nav {
-        transform: translateX(0); /* Sidebar always visible */
-    }
-
     body.sidebar-open #sidebarContainer .sidebar-nav {
-        /* No change needed from default visible state on desktop */
+        transform: translateX(0);
+    }
+
+    body.sidebar-open main {
+        margin-left: 250px;
     }
     
-    main {
-        margin-left: 250px;
-    }
-
-    header {
-        margin-left: 250px;
-    }
-
-    footer {
+    body.sidebar-open footer {
         margin-left: 250px;
     }
 }
@@ -534,36 +555,23 @@ body.dark-mode #sidebarContainer .sidebar-link:focus {
     color: var(--text-on-primary-dark);
 }
 
-/* Clear All Saved Data Button Style */
-.sidebar-button {
-    display: block;
-    width: calc(100% - 40px); /* Full width minus padding (20px left/right) */
-    padding: 12px 20px;
-    margin: 10px 20px; /* Consistent with sidebar link padding/margins */
-    font-family: inherit;
-    font-size: inherit; /* Matches other sidebar text */
-    text-align: left;
-    background-color: var(--button-danger-background-light); /* Using danger color for a destructive action */
-    color: var(--button-danger-text-light);
-    border: none;
-    border-radius: 4px; /* Consistent with other buttons if any, or a new style */
-    cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
+body.dark-mode .header-button {
+    background-color: var(--button-primary-background-dark);
+    color: var(--button-primary-text-dark);
 }
 
-.sidebar-button:hover {
-    background-color: var(--button-danger-hover-background-light);
+body.dark-mode .header-button:hover {
+    background-color: var(--button-primary-hover-background-dark);
 }
 
-/* Dark mode styling for the clear button */
-body.dark-mode .sidebar-button {
+body.dark-mode #clearAllSavedDataBtn.header-button {
     background-color: var(--button-danger-background-dark);
-    color: var(--button-danger-text-dark);
 }
 
-body.dark-mode .sidebar-button:hover {
+body.dark-mode #clearAllSavedDataBtn.header-button:hover {
     background-color: var(--button-danger-hover-background-dark);
 }
+
 
 /* Styling for individual calculator clear buttons */
 .calculator-button.clear-button {
@@ -758,32 +766,11 @@ body.dark-mode .chart-card fieldset.schedule-group legend {
 }
 
 /* Theme Switcher Button Style */
-#themeSwitcherButton {
-    display: block;
-    width: 100%;
-    padding: 12px 20px;
-    font-family: inherit;
-    font-size: inherit;
-    text-align: left;
-    background: none;
-    border: none;
-    border-bottom: 1px solid var(--sidebar-border-light);
-    color: var(--text-color-light); /* Matches .sidebar-link color */
-    cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
+#themeSwitcherButton.header-button {
+    /* This button is now styled by .header-button, but we can add specific overrides if needed */
+    /* For example, if we wanted a different color for the theme switcher */
 }
 
-#themeSwitcherButton:hover {
-    background-color: var(--sidebar-link-hover-background-light);
-    color: var(--text-on-primary-light); /* Matches .sidebar-link:hover color */
-}
-
-body.dark-mode #themeSwitcherButton {
-    color: var(--text-color-dark);
-    border-bottom-color: var(--sidebar-border-dark);
-}
-
-body.dark-mode #themeSwitcherButton:hover {
-    background-color: var(--sidebar-link-hover-background-dark);
-    color: var(--text-on-primary-dark);
+body.dark-mode #themeSwitcherButton.header-button {
+    /* Dark mode specific overrides for the theme switcher button */
 }
