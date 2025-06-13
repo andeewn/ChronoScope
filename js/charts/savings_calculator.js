@@ -8,6 +8,8 @@ if (typeof Chart === 'undefined') {
 }
 
 function initializeSavingsCalculator() {
+    const LOCAL_STORAGE_KEY = 'savingsCalculatorInput';
+
     const initialSavingsEl = document.getElementById('initialSavings');
     const monthlySavingsEl = document.getElementById('monthlySavings');
     const currentAgeEl = document.getElementById('currentAge'); // New age input
@@ -75,10 +77,46 @@ function initializeSavingsCalculator() {
     // [initialSavingsEl, monthlySavingsEl].forEach(el => { ... });
 
 
+    function loadInputFromLocalStorage() {
+        const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (savedData) {
+            const inputValues = JSON.parse(savedData);
+
+            initialSavingsEl.value = inputValues.initialSavings || '10000'; // Default if missing
+            monthlySavingsEl.value = inputValues.monthlySavings || '500';
+            currentAgeEl.value = inputValues.currentAge || '30';
+            annualInterestRateEl.value = inputValues.annualInterestRate || '5';
+            numberOfYearsEl.value = inputValues.numberOfYears || '10';
+
+            // Update display spans
+            if (initialSavingsValueDisplay) initialSavingsValueDisplay.textContent = formatCurrency(initialSavingsEl.value);
+            if (monthlySavingsValueDisplay) monthlySavingsValueDisplay.textContent = formatCurrency(monthlySavingsEl.value);
+            if (currentAgeValueDisplay) currentAgeValueDisplay.textContent = currentAgeEl.value + ' years';
+            if (annualInterestRateValueDisplay) annualInterestRateValueDisplay.textContent = annualInterestRateEl.value + '%';
+            if (numberOfYearsValueDisplay) numberOfYearsValueDisplay.textContent = numberOfYearsEl.value + ' years';
+
+            calculateAndDisplaySavings(); // Recalculate with loaded values
+        }
+    }
+
+    function saveInputToLocalStorage() {
+        const inputValues = {
+            initialSavings: initialSavingsEl.value,
+            monthlySavings: monthlySavingsEl.value,
+            currentAge: currentAgeEl.value,
+            annualInterestRate: annualInterestRateEl.value,
+            numberOfYears: numberOfYearsEl.value,
+        };
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(inputValues));
+    }
+
     function calculateAndDisplaySavings() {
         const initialSavings = parseFloat(initialSavingsEl.value); // Changed from parseInputFormattedValue
         const monthlySavings = parseFloat(monthlySavingsEl.value); // Changed from parseInputFormattedValue
         
+        // Save input values to local storage
+        saveInputToLocalStorage();
+
         let currentAge = parseInt(currentAgeEl.value, 10);
         if (currentAge === 0) { // Treat 0 as "not provided"
             currentAge = null;
@@ -292,7 +330,50 @@ function initializeSavingsCalculator() {
     });
 
     // Perform an initial calculation if default values are present and valid
+    // Load saved data first, which might trigger a calculation.
+    // Then, if no saved data, this will run with defaults.
+    loadInputFromLocalStorage();
+
+    // If loadInputFromLocalStorage did not find data and thus did not call calculateAndDisplaySavings,
+    // this existing logic will perform the initial calculation with default HTML values.
+    // If data WAS loaded, calculateAndDisplaySavings was already called, so this might be redundant
+    // but harmless as it would just recalculate with the same (loaded) values.
+    // To avoid double calculation if data is loaded, loadInputFromLocalStorage could return a boolean,
+    // and this call could be conditional. For now, keeping it simple.
     if (initialSavingsEl.value && monthlySavingsEl.value && annualInterestRateEl.value && numberOfYearsEl.value) {
-        calculateAndDisplaySavings();
+        // Check if data was loaded to prevent double calculation.
+        // A simple way: if localStorage had data, the first calculation is already done.
+        // This check is imperfect because default values might match saved values.
+        // A more robust way would be for loadInputFromLocalStorage to return true if it loaded and calculated.
+        if (!localStorage.getItem(LOCAL_STORAGE_KEY)) {
+             calculateAndDisplaySavings();
+        }
+    }
+
+    const clearDataBtn = document.getElementById('clearSavingsDataBtn');
+    if (clearDataBtn) {
+        clearDataBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear saved data for the Savings Calculator?')) {
+                localStorage.removeItem(LOCAL_STORAGE_KEY);
+                alert('Saved data for the Savings Calculator has been cleared. Input fields will be reset to defaults.');
+
+                // Reset input fields to their default values
+                initialSavingsEl.value = '10000';
+                monthlySavingsEl.value = '500';
+                currentAgeEl.value = '30';
+                annualInterestRateEl.value = '5';
+                numberOfYearsEl.value = '10';
+
+                // Update display spans for sliders
+                if (initialSavingsValueDisplay) initialSavingsValueDisplay.textContent = formatCurrency(initialSavingsEl.value);
+                if (monthlySavingsValueDisplay) monthlySavingsValueDisplay.textContent = formatCurrency(monthlySavingsEl.value);
+                if (currentAgeValueDisplay) currentAgeValueDisplay.textContent = currentAgeEl.value + ' years';
+                if (annualInterestRateValueDisplay) annualInterestRateValueDisplay.textContent = annualInterestRateEl.value + '%';
+                if (numberOfYearsValueDisplay) numberOfYearsValueDisplay.textContent = numberOfYearsEl.value + ' years';
+
+                // Recalculate and update chart with default values
+                calculateAndDisplaySavings();
+            }
+        });
     }
 }

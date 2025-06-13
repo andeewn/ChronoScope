@@ -57,6 +57,7 @@ function loadSidebar() {
             setupNavigation();
             setupHamburgerMenu();
             setupThemeSwitcher(); // Add this call
+            setupClearAllDataButton(); // Setup the new clear all data button
 
             const firstLink = document.querySelector('#sidebarContainer .sidebar-link');
             if (firstLink) {
@@ -224,5 +225,31 @@ function setupThemeSwitcher() {
         });
     } else {
         console.error("Theme switcher button 'themeSwitcherButton' not found.");
+    }
+}
+
+function setupClearAllDataButton() {
+    const clearAllBtn = document.getElementById('clearAllSavedDataBtn');
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear all saved data for all calculators? This action cannot be undone.')) {
+                const keysToRemove = [
+                    'savingsCalculatorInput',
+                    'expensesCalculatorExpensesList',
+                    'expensesCalculatorProjectionYears',
+                    'freetimeCalculatorInputs',
+                    'trueCostCalculatorInputs',
+                    'vacationHomeCalculatorInputs'
+                    // Add any other keys if new calculators are added
+                ];
+                keysToRemove.forEach(key => {
+                    localStorage.removeItem(key);
+                    console.log('Removed:', key);
+                });
+                alert('All saved calculator data has been cleared. You may need to reload the page or the active calculator to see the changes.');
+            }
+        });
+    } else {
+        console.warn("Clear All Saved Data button 'clearAllSavedDataBtn' not found during setup.");
     }
 }
