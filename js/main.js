@@ -185,6 +185,9 @@ function loadChartContent(chartHtmlFile, containerId, chartJsFile, onProcessedCa
                                 calculateVacationHomeFinances(); // Initial calculation
                                 console.log('calculateVacationHomeFinances called.');
                             }
+                        } else if (chartJsFile.includes('property_transfer_calculator.js') && typeof initPropertyTransferCalculator === 'function') {
+                            initPropertyTransferCalculator();
+                            console.log('initPropertyTransferCalculator called.');
                         }
                         // Add similar checks for other chart initializers if they are refactored
                         // to use explicit init functions.
@@ -254,7 +257,8 @@ function setupClearAllDataButton() {
                     'expensesCalculatorProjectionYears',
                     'freetimeCalculatorInputs',
                     'trueCostCalculatorInputs',
-                    'vacationHomeCalculatorInputs'
+                    'vacationHomeCalculatorInputs',
+                    'propertyTransferCalculatorInputs'
                     // Add any other keys if new calculators are added
                 ];
                 keysToRemove.forEach(key => {
