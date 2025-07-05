@@ -188,9 +188,6 @@ function loadChartContent(chartHtmlFile, containerId, chartJsFile, onProcessedCa
                         } else if (chartJsFile.includes('property_transfer_calculator.js') && typeof initPropertyTransferCalculator === 'function') {
                             initPropertyTransferCalculator();
                             console.log('initPropertyTransferCalculator called.');
-                        } else if (chartJsFile.includes('house_purchase_calculator.js') && typeof initHousePurchaseCalculator === 'function') {
-                            initHousePurchaseCalculator();
-                            console.log('initHousePurchaseCalculator called.');
                         }
                         // Add similar checks for other chart initializers if they are refactored
                         // to use explicit init functions.
