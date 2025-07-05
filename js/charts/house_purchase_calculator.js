@@ -108,6 +108,25 @@
         };
     }
 
+    function beräknaÅrligAmortering(aktuellSkuld, köpeskilling, bruttoårsinkomst) {
+        // Amortization rules are based on the original purchase price and income.
+        const belåningsgrad = aktuellSkuld / köpeskilling;
+        const skuldkvot = aktuellSkuld / bruttoårsinkomst;
+        let amorteringsprocent = 0;
+
+        if (belåningsgrad > 0.7) {
+            amorteringsprocent = 0.02;
+        } else if (belåningsgrad > 0.5) {
+            amorteringsprocent = 0.01;
+        }
+
+        if (skuldkvot > 4.5) {
+            amorteringsprocent += 0.01;
+        }
+
+        return aktuellSkuld * amorteringsprocent;
+    }
+
     function beräknaLånekostnader(bolånebelopp, indata) {
         const årligBruttoräntekostnad = bolånebelopp * (indata.antagenRäntaProcent / 100);
         
@@ -120,27 +139,14 @@
         
         const totalÅrligSkattereduktion = avdrag30procent + avdrag21procent;
         
-        const belåningsgrad = bolånebelopp / indata.köpeskilling;
-        const skuldkvot = bolånebelopp / indata.hushålletsBruttoårsinkomst;
-        let amorteringsprocent = 0;
-        
-        if (belåningsgrad > 0.7) {
-            amorteringsprocent = 0.02;
-        } else if (belåningsgrad > 0.5) {
-            amorteringsprocent = 0.01;
-        }
-        
-        if (skuldkvot > 4.5) {
-            amorteringsprocent += 0.01;
-        }
-        
-        const årligAmortering = bolånebelopp * amorteringsprocent;
+        // Calculate initial amortization for the summary box
+        const årligAmortering = beräknaÅrligAmortering(bolånebelopp, indata.köpeskilling, indata.hushålletsBruttoårsinkomst);
         
         return {
             årligBruttoräntekostnad: årligBruttoräntekostnad,
             totalÅrligSkattereduktion: totalÅrligSkattereduktion,
             årligNettoräntekostnad: årligBruttoräntekostnad - totalÅrligSkattereduktion,
-            årligAmortering: årligAmortering,
+            årligAmortering: årligAmortering, // Initial amortization
             månatligNettoräntekostnad: (årligBruttoräntekostnad - totalÅrligSkattereduktion) / 12,
             månatligAmortering: årligAmortering / 12
         };
@@ -167,14 +173,17 @@
         };
     }
 
-    function beräknaFörmögenhetsutveckling(årligAmortering, indata) {
+    function beräknaFörmögenhetsutveckling(initialAmortering, indata) {
         const prognosLista = [];
         let aktuelltVärde = indata.köpeskilling;
         let aktuellSkuld = indata.köpeskilling * (indata.bolåneandelProcent / 100);
 
         for (let år = 1; år <= indata.antalÅrFörPrognos; år++) {
+            // Recalculate amortization each year based on the current debt
+            const årligAmorteringFörÅret = beräknaÅrligAmortering(aktuellSkuld, indata.köpeskilling, indata.hushålletsBruttoårsinkomst);
+
             aktuelltVärde *= (1 + (indata.antagenÅrligVärdeökningProcent / 100));
-            aktuellSkuld -= årligAmortering;
+            aktuellSkuld -= årligAmorteringFörÅret;
             if (aktuellSkuld < 0) aktuellSkuld = 0;
 
             const nettoförmögenhet = aktuelltVärde - aktuellSkuld;
@@ -183,6 +192,7 @@
                 år: år,
                 husetsVärde: Math.round(aktuelltVärde),
                 kvarvarandeSkuld: Math.round(aktuellSkuld),
+                årligAmortering: Math.round(årligAmorteringFörÅret),
                 nettoförmögenhetIBoendet: Math.round(nettoförmögenhet)
             });
         }
@@ -200,7 +210,10 @@
         document.getElementById('hpc-other-fees').textContent = formatCurrency(engångskostnader.summaÖvrigaAvgifter);
 
         // Display monthly costs
-        document.getElementById('hpc-total-monthly-cost').textContent = formatCurrency(totalMånadskostnad["TOTAL MÅNATLIG BOENDEKOSTNAD"]);
+        const totalMonthly = totalMånadskostnad["TOTAL MÅNATLIG BOENDEKOSTNAD"];
+        const totalYearly = totalMonthly * 12;
+        document.getElementById('hpc-total-monthly-cost').textContent = formatCurrency(totalMonthly);
+        document.getElementById('hpc-total-yearly-cost').textContent = formatCurrency(totalYearly);
         document.getElementById('hpc-net-interest-cost').textContent = formatCurrency(totalMånadskostnad.Nettoräntekostnad);
         document.getElementById('hpc-amortization-cost').textContent = formatCurrency(totalMånadskostnad.Amortering);
         document.getElementById('hpc-operating-costs').textContent = formatCurrency(totalMånadskostnad["Summa drift, avgifter, försäkring"]);
@@ -214,6 +227,7 @@
                 <td>${item.år}</td>
                 <td>${formatCurrency(item.husetsVärde)} kr</td>
                 <td>${formatCurrency(item.kvarvarandeSkuld)} kr</td>
+                <td>${formatCurrency(item.årligAmortering)} kr</td>
                 <td>${formatCurrency(item.nettoförmögenhetIBoendet)} kr</td>
             </tr>`;
             tableBody.innerHTML += row;
