@@ -119,7 +119,7 @@
             </div>
 
             <div class="result-box">
-                <h4>Total Boendekostnad</h4>
+                <h4>Total Boendekostnad (Första året)</h4>
                 <p><strong>Total månadskostnad:</strong> <span id="hpc-total-monthly-cost"></span> kr/mån</p>
                 <p><strong>Total årskostnad:</strong> <span id="hpc-total-yearly-cost"></span> kr/år</p>
                 <p>Nettoräntekostnad: <span id="hpc-net-interest-cost"></span> kr/mån</p>
@@ -130,11 +130,17 @@
         </div>
 
         <div class="chart-container">
+            <h4>Månadskostnadens Utveckling</h4>
+            <canvas id="hpc-cost-breakdown-chart"></canvas>
+        </div>
+
+        <div class="chart-container">
+            <h4>Förmögenhetsprognos</h4>
             <canvas id="hpc-wealth-chart"></canvas>
         </div>
 
         <div class="table-container">
-            <h4>Förmögenhetsprognos</h4>
+            <h4>Årlig Utveckling</h4>
             <table id="hpc-projection-table">
                 <thead>
                     <tr>
