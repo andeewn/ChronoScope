@@ -188,6 +188,10 @@ function loadChartContent(chartHtmlFile, containerId, chartJsFile, onProcessedCa
                         } else if (chartJsFile.includes('property_transfer_calculator.js') && typeof initPropertyTransferCalculator === 'function') {
                             initPropertyTransferCalculator();
                             console.log('initPropertyTransferCalculator called.');
+                        } else if (chartJsFile.includes('house_purchase_calculator.js') && typeof calculateAll === 'function') {
+                            // This calculator initializes itself, so no explicit call needed here,
+                            // but we can log that its script is loaded and ready.
+                            console.log('house_purchase_calculator.js loaded and ready.');
                         }
                         // Add similar checks for other chart initializers if they are refactored
                         // to use explicit init functions.
@@ -258,7 +262,8 @@ function setupClearAllDataButton() {
                     'freetimeCalculatorInputs',
                     'trueCostCalculatorInputs',
                     'vacationHomeCalculatorInputs',
-                    'propertyTransferCalculatorInputs'
+                    'propertyTransferCalculatorInputs',
+                    'housePurchaseCalculatorInputs'
                     // Add any other keys if new calculators are added
                 ];
                 keysToRemove.forEach(key => {

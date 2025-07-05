@@ -1,0 +1,152 @@
+<div class="chart-card">
+    <h2>Husköps- & Förmögenhetskalkylator</h2>
+    <p>Beräkna den totala kostnaden för ett husköp, din månadskostnad och se en prognos över din förmögenhetsutveckling.</p>
+
+    <div class="input-grid">
+        <!-- Avsnitt 1: Indata för köpet -->
+        <div class="input-section">
+            <h3>Köpet</h3>
+            <div class="input-group">
+                <label for="hpc-purchase-price">Köpeskilling (kr)</label>
+                <input type="text" id="hpc-purchase-price" value="4 000 000">
+            </div>
+            <div class="input-group">
+                <label for="hpc-loan-percentage">Bolåneandel (%)</label>
+                <input type="number" id="hpc-loan-percentage" value="85">
+            </div>
+            <div class="input-group">
+                <label for="hpc-existing-deeds">Befintliga pantbrev (kr)</label>
+                <input type="text" id="hpc-existing-deeds" value="2 000 000">
+            </div>
+        </div>
+
+        <!-- Avsnitt 2: Lån och Ekonomi -->
+        <div class="input-section">
+            <h3>Lån & Ekonomi</h3>
+            <div class="input-group">
+                <label for="hpc-interest-rate">Antagen ränta (%)</label>
+                <input type="number" id="hpc-interest-rate" value="4.0" step="0.1">
+            </div>
+            <div class="input-group">
+                <label for="hpc-gross-income">Hushållets bruttoårsinkomst (kr)</label>
+                <input type="text" id="hpc-gross-income" value="900 000">
+            </div>
+        </div>
+
+        <!-- Avsnitt 3: Löpande kostnader (Månad) -->
+        <div class="input-section">
+            <h3>Driftskostnader (per månad)</h3>
+            <div class="input-group">
+                <label for="hpc-heating">Uppvärmning</label>
+                <input type="number" id="hpc-heating" value="1800">
+            </div>
+            <div class="input-group">
+                <label for="hpc-electricity">Hushållsel</label>
+                <input type="number" id="hpc-electricity" value="700">
+            </div>
+            <div class="input-group">
+                <label for="hpc-water-sewage">Vatten & Avlopp</label>
+                <input type="number" id="hpc-water-sewage" value="900">
+            </div>
+            <div class="input-group">
+                <label for="hpc-waste">Renhållning</label>
+                <input type="number" id="hpc-waste" value="300">
+            </div>
+            <div class="input-group">
+                <label for="hpc-sweeping">Sotning</label>
+                <input type="number" id="hpc-sweeping" value="40">
+            </div>
+            <div class="input-group">
+                <label for="hpc-broadband">Bredband/TV</label>
+                <input type="number" id="hpc-broadband" value="500">
+            </div>
+            <div class="input-group">
+                <label for="hpc-insurance">Villaförsäkring</label>
+                <input type="number" id="hpc-insurance" value="600">
+            </div>
+            <div class="input-group">
+                <label for="hpc-leasehold">Tomträttsavgäld</label>
+                <input type="number" id="hpc-leasehold" value="0">
+            </div>
+            <div class="input-group">
+                <label for="hpc-community-fee">Samfällighetsavgift</label>
+                <input type="number" id="hpc-community-fee" value="400">
+            </div>
+            <div class="input-group">
+                <label for="hpc-maintenance-fund">Sparande underhållsfond</label>
+                <input type="number" id="hpc-maintenance-fund" value="2000">
+            </div>
+        </div>
+
+        <!-- Avsnitt 4: Engångskostnader & Prognos -->
+        <div class="input-section">
+            <h3>Engångskostnader & Prognos</h3>
+            <div class="input-group">
+                <label for="hpc-inspection-cost">Överlåtelsebesiktning</label>
+                <input type="number" id="hpc-inspection-cost" value="10000">
+            </div>
+            <div class="input-group">
+                <label for="hpc-bank-fees">Bankavgifter</label>
+                <input type="number" id="hpc-bank-fees" value="1500">
+            </div>
+            <div class="input-group">
+                <label for="hpc-moving-cost">Flytt & Städ</label>
+                <input type="number" id="hpc-moving-cost" value="8000">
+            </div>
+            <div class="input-group">
+                <label for="hpc-value-increase">Antagen årlig värdeökning (%)</label>
+                <input type="number" id="hpc-value-increase" value="3.0" step="0.1">
+            </div>
+            <div class="input-group">
+                <label for="hpc-projection-years">Antal år för prognos</label>
+                <input type="number" id="hpc-projection-years" value="15">
+            </div>
+        </div>
+    </div>
+
+    <button id="hpc-calculate-btn" class="calculate-btn">Beräkna</button>
+
+    <div id="hpc-results" class="results-section" style="display: none;">
+        <h3>Resultat</h3>
+        
+        <div class="results-grid">
+            <div class="result-box">
+                <h4>Initiala Engångskostnader</h4>
+                <p><strong>Totalt initialt kassa utlägg:</strong> <span id="hpc-total-initial-outlay"></span> kr</p>
+                <p><em>Varav kontantinsats:</em> <span id="hpc-down-payment"></span> kr</p>
+                <p><em>Varav lagfart & pantbrev:</em> <span id="hpc-legal-costs"></span> kr</p>
+                <p><em>Varav övriga avgifter:</em> <span id="hpc-other-fees"></span> kr</p>
+            </div>
+
+            <div class="result-box">
+                <h4>Total Månatlig Boendekostnad</h4>
+                <p><strong>Total månadskostnad:</strong> <span id="hpc-total-monthly-cost"></span> kr/mån</p>
+                <p>Nettoräntekostnad: <span id="hpc-net-interest-cost"></span> kr/mån</p>
+                <p>Amortering (sparande): <span id="hpc-amortization-cost"></span> kr/mån</p>
+                <p>Drift, avgifter, försäkring: <span id="hpc-operating-costs"></span> kr/mån</p>
+                <p>Sparande till underhåll: <span id="hpc-maintenance-saving"></span> kr/mån</p>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="hpc-wealth-chart"></canvas>
+        </div>
+
+        <div class="table-container">
+            <h4>Förmögenhetsprognos</h4>
+            <table id="hpc-projection-table">
+                <thead>
+                    <tr>
+                        <th>År</th>
+                        <th>Husets Värde</th>
+                        <th>Kvarvarande Skuld</th>
+                        <th>Nettoförmögenhet i Boendet</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data fylls i av JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
