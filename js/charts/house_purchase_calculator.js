@@ -20,6 +20,21 @@
     let wealthChart = null;
     let costBreakdownChart = null;
 
+    // --- DOM Elements for Dynamic Operating Costs ---
+    const expenseNameEl = document.getElementById('hpc-expenseName');
+    const expenseCostEl = document.getElementById('hpc-expenseCost');
+    const expenseOccurrenceEl = document.getElementById('hpc-expenseOccurrence');
+    const addExpenseBtn = document.getElementById('hpc-addExpenseBtn');
+    const currentExpensesTableBodyEl = document.getElementById('hpc-currentExpensesTableBody');
+    const totalAnnualCostEl = document.getElementById('hpc-total-annual-operating-cost');
+    const totalMonthlyCostEl = document.getElementById('hpc-total-monthly-operating-cost');
+
+    // --- State for Dynamic Costs ---
+    let operatingExpenses = [];
+    let editingExpenseId = null;
+    const LOCAL_STORAGE_KEY_HPC_EXPENSES = 'hpcOperatingExpenses';
+
+
     // --- Input Formatting ---
     const formatNumberInput = (e) => {
         let value = e.target.value.replace(/\s/g, '');
@@ -28,9 +43,19 @@
         }
     };
 
+    const formatCurrencyForInput = (value) => {
+        const num = parseInt(String(value).replace(/\s/g, ''), 10);
+        if (isNaN(num)) return '';
+        return new Intl.NumberFormat('sv-SE').format(num);
+    };
+
     document.getElementById('hpc-purchase-price').addEventListener('input', formatNumberInput);
     document.getElementById('hpc-existing-deeds').addEventListener('input', formatNumberInput);
     document.getElementById('hpc-gross-income').addEventListener('input', formatNumberInput);
+    expenseCostEl.addEventListener('input', (e) => {
+        e.target.value = formatCurrencyForInput(e.target.value);
+    });
+
 
     // --- Helper Functions ---
     const parseFormattedNumber = (str) => {
@@ -45,22 +70,16 @@
     // --- Main Calculation Logic ---
     const calculateAll = () => {
         // 1. Get all input values
+        const totalAnnualOperatingCost = operatingExpenses.reduce((sum, exp) => sum + exp.annualCost, 0);
+
         const indata = {
             köpeskilling: parseFormattedNumber(document.getElementById('hpc-purchase-price').value),
             bolåneandelProcent: parseFloat(document.getElementById('hpc-loan-percentage').value),
             befintligaPantbrev: parseFormattedNumber(document.getElementById('hpc-existing-deeds').value),
             antagenRäntaProcent: parseFloat(document.getElementById('hpc-interest-rate').value),
             hushålletsBruttoårsinkomst: parseFormattedNumber(document.getElementById('hpc-gross-income').value),
-            drift_uppvärmning_månad: parseFloat(document.getElementById('hpc-heating').value),
-            drift_hushållsel_månad: parseFloat(document.getElementById('hpc-electricity').value),
-            drift_vatten_avlopp_månad: parseFloat(document.getElementById('hpc-water-sewage').value),
-            drift_renhållning_månad: parseFloat(document.getElementById('hpc-waste').value),
-            drift_sotning_månad: parseFloat(document.getElementById('hpc-sweeping').value),
-            drift_bredband_tv_månad: parseFloat(document.getElementById('hpc-broadband').value),
-            försäkring_villaförsäkring_månad: parseFloat(document.getElementById('hpc-insurance').value),
-            tomträttsavgäld_månad: parseFloat(document.getElementById('hpc-leasehold').value),
-            samfällighetsavgift_månad: parseFloat(document.getElementById('hpc-community-fee').value),
-            sparande_underhållsfond_månad: parseFloat(document.getElementById('hpc-maintenance-fund').value),
+            totalMånadsdrift: totalAnnualOperatingCost / 12,
+            // sparande_underhållsfond_månad: parseFloat(document.getElementById('hpc-maintenance-fund').value), // This is now part of dynamic costs
             kostnad_överlåtelsebesiktning: parseFloat(document.getElementById('hpc-inspection-cost').value),
             kostnad_bankavgifter: parseFloat(document.getElementById('hpc-bank-fees').value),
             kostnad_flytt_och_städ: parseFloat(document.getElementById('hpc-moving-cost').value),
@@ -156,20 +175,15 @@
     function beräknaTotalMånadskostnad(lånekostnader, indata) {
         const fastighetsavgift_månad = Math.min(indata.köpeskilling * 0.0075, FASTIGHETSAVGIFT_MAX_ÅR) / 12;
         
-        const summaDriftskostnader_månad = indata.drift_uppvärmning_månad + indata.drift_hushållsel_månad +
-                                    indata.drift_vatten_avlopp_månad + indata.drift_renhållning_månad +
-                                    indata.drift_sotning_månad + indata.drift_bredband_tv_månad +
-                                    indata.försäkring_villaförsäkring_månad + indata.tomträttsavgäld_månad +
-                                    indata.samfällighetsavgift_månad + fastighetsavgift_månad;
+        const summaDriftskostnader_månad = indata.totalMånadsdrift + fastighetsavgift_månad;
                                     
         const totalMånadskostnad = lånekostnader.månatligNettoräntekostnad + lånekostnader.månatligAmortering +
-                                 summaDriftskostnader_månad + indata.sparande_underhållsfond_månad;
+                                 summaDriftskostnader_månad;
 
         return {
             "Nettoräntekostnad": lånekostnader.månatligNettoräntekostnad,
             "Amortering": lånekostnader.månatligAmortering,
             "Summa drift, avgifter, försäkring": summaDriftskostnader_månad,
-            "Sparande till underhåll": indata.sparande_underhållsfond_månad,
             "TOTAL MÅNATLIG BOENDEKOSTNAD": totalMånadskostnad
         };
     }
@@ -181,11 +195,7 @@
         let aktuellSkuld = indata.köpeskilling * (indata.bolåneandelProcent / 100);
 
         const fastighetsavgift_månad = Math.min(indata.köpeskilling * 0.0075, FASTIGHETSAVGIFT_MAX_ÅR) / 12;
-        const driftOchAvgifterMånad = indata.drift_uppvärmning_månad + indata.drift_hushållsel_månad +
-                                    indata.drift_vatten_avlopp_månad + indata.drift_renhållning_månad +
-                                    indata.drift_sotning_månad + indata.drift_bredband_tv_månad +
-                                    indata.försäkring_villaförsäkring_månad + indata.tomträttsavgäld_månad +
-                                    indata.samfällighetsavgift_månad + fastighetsavgift_månad;
+        const driftOchAvgifterMånad = indata.totalMånadsdrift + fastighetsavgift_månad;
 
         for (let år = 1; år <= indata.antalÅrFörPrognos; år++) {
             // --- Cost calculations for the current year ---
@@ -206,7 +216,7 @@
                 nettoränta: månatligNettoräntekostnad,
                 amortering: månatligAmortering,
                 drift: driftOchAvgifterMånad,
-                underhåll: indata.sparande_underhållsfond_månad
+                underhåll: 0 // This is now part of dynamic costs
             });
 
             // --- Wealth calculations for the next year ---
@@ -246,7 +256,7 @@
         document.getElementById('hpc-net-interest-cost').textContent = formatCurrency(totalMånadskostnad.Nettoräntekostnad);
         document.getElementById('hpc-amortization-cost').textContent = formatCurrency(totalMånadskostnad.Amortering);
         document.getElementById('hpc-operating-costs').textContent = formatCurrency(totalMånadskostnad["Summa drift, avgifter, försäkring"]);
-        document.getElementById('hpc-maintenance-saving').textContent = formatCurrency(totalMånadskostnad["Sparande till underhåll"]);
+        document.getElementById('hpc-maintenance-saving').textContent = "Ingår i drift"; // Updated text
 
         // Display projection table
         const tableBody = document.querySelector('#hpc-projection-table tbody');
@@ -366,11 +376,11 @@
                         data: kostnadsutveckling.map(k => k.drift),
                         backgroundColor: 'hsl(189, 100%, 85%)', // Lighter cyan
                     },
-                    {
-                        label: 'Underhållssparande',
-                        data: kostnadsutveckling.map(k => k.underhåll),
-                        backgroundColor: 'hsl(50, 100%, 85%)', // Lighter yellow
-                    }
+                    // {
+                    //     label: 'Underhållssparande',
+                    //     data: kostnadsutveckling.map(k => k.underhåll),
+                    //     backgroundColor: 'hsl(50, 100%, 85%)', // Lighter yellow
+                    // }
                 ]
             },
             options: {
@@ -412,7 +422,116 @@
 
     // --- Event Listener ---
     calculateBtn.addEventListener('click', calculateAll);
+    addExpenseBtn.addEventListener('click', handleAddOrUpdateExpense);
+    currentExpensesTableBodyEl.addEventListener('click', handleTableActions);
 
-    // --- Initial Calculation on Load ---
+
+    // --- Dynamic Operating Cost Functions ---
+
+    function handleAddOrUpdateExpense() {
+        const name = expenseNameEl.value.trim();
+        const cost = parseFormattedNumber(expenseCostEl.value);
+        const occurrence = expenseOccurrenceEl.value;
+
+        if (!name || isNaN(cost) || cost <= 0) {
+            alert('Vänligen fyll i ett giltigt namn och en positiv kostnad.');
+            return;
+        }
+
+        const annualCost = calculateAnnualCost(cost, occurrence);
+
+        if (editingExpenseId !== null) {
+            const expense = operatingExpenses.find(exp => exp.id === editingExpenseId);
+            expense.name = name;
+            expense.cost = cost;
+            expense.occurrence = occurrence;
+            expense.annualCost = annualCost;
+            editingExpenseId = null;
+            addExpenseBtn.textContent = 'Lägg till kostnad';
+        } else {
+            const newExpense = { id: Date.now(), name, cost, occurrence, annualCost };
+            operatingExpenses.push(newExpense);
+        }
+
+        resetExpenseForm();
+        updateExpensesDisplay();
+        saveExpensesToLocalStorage();
+        calculateAll(); // Recalculate everything when an expense changes
+    }
+
+    function handleTableActions(event) {
+        const target = event.target;
+        if (target.classList.contains('hpc-edit-btn')) {
+            const id = parseInt(target.dataset.id, 10);
+            const expense = operatingExpenses.find(exp => exp.id === id);
+            expenseNameEl.value = expense.name;
+            expenseCostEl.value = formatCurrencyForInput(expense.cost);
+            expenseOccurrenceEl.value = expense.occurrence;
+            editingExpenseId = id;
+            addExpenseBtn.textContent = 'Uppdatera kostnad';
+        } else if (target.classList.contains('hpc-remove-btn')) {
+            const id = parseInt(target.dataset.id, 10);
+            operatingExpenses = operatingExpenses.filter(exp => exp.id !== id);
+            updateExpensesDisplay();
+            saveExpensesToLocalStorage();
+            calculateAll(); // Recalculate everything
+        }
+    }
+
+    function calculateAnnualCost(cost, occurrence) {
+        switch (occurrence) {
+            case 'daily': return cost * 365;
+            case 'weekly': return cost * 52;
+            case 'monthly': return cost * 12;
+            case 'quarterly': return cost * 4;
+            case 'yearly': return cost;
+            default: return 0;
+        }
+    }
+
+    function resetExpenseForm() {
+        expenseNameEl.value = '';
+        expenseCostEl.value = '';
+        expenseOccurrenceEl.value = 'monthly';
+        expenseNameEl.focus();
+    }
+
+    function updateExpensesDisplay() {
+        currentExpensesTableBodyEl.innerHTML = '';
+        let totalAnnual = 0;
+
+        operatingExpenses.forEach(exp => {
+            const row = currentExpensesTableBodyEl.insertRow();
+            row.innerHTML = `
+                <td>${exp.name}</td>
+                <td>${formatCurrency(exp.cost)}</td>
+                <td>${exp.occurrence.charAt(0).toUpperCase() + exp.occurrence.slice(1)}</td>
+                <td>${formatCurrency(exp.annualCost)}</td>
+                <td>
+                    <button class="hpc-edit-btn" data-id="${exp.id}">✏️</button>
+                    <button class="hpc-remove-btn" data-id="${exp.id}">❌</button>
+                </td>
+            `;
+            totalAnnual += exp.annualCost;
+        });
+
+        totalAnnualCostEl.textContent = formatCurrency(totalAnnual) + ' kr';
+        totalMonthlyCostEl.textContent = formatCurrency(totalAnnual / 12) + ' kr';
+    }
+
+    function saveExpensesToLocalStorage() {
+        localStorage.setItem(LOCAL_STORAGE_KEY_HPC_EXPENSES, JSON.stringify(operatingExpenses));
+    }
+
+    function loadExpensesFromLocalStorage() {
+        const saved = localStorage.getItem(LOCAL_STORAGE_KEY_HPC_EXPENSES);
+        if (saved) {
+            operatingExpenses = JSON.parse(saved);
+            updateExpensesDisplay();
+        }
+    }
+
+    // --- Initial Load ---
+    loadExpensesFromLocalStorage();
     calculateAll();
 })();
