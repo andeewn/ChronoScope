@@ -35,6 +35,23 @@ function initializeTheme() {
 document.addEventListener('DOMContentLoaded', function() {
     initializeTheme(); // Initialize theme first
     loadSidebar();
+    setupThemeSwitcher(); // Moved from loadSidebar
+    setupClearAllDataButton(); // Moved from loadSidebar
+    setupHamburgerMenu(); // Moved from loadSidebar
+
+    // Open sidebar by default on desktop
+    if (window.innerWidth >= 769) {
+        document.body.classList.add('sidebar-open');
+    }
+
+    // Handle responsive sidebar behavior on resize
+    window.addEventListener('resize', function() {
+        if (window.innerWidth >= 769) {
+            document.body.classList.add('sidebar-open');
+        } else {
+            document.body.classList.remove('sidebar-open');
+        }
+    });
 });
 
 let activeChartContainerId = null;
@@ -55,9 +72,6 @@ function loadSidebar() {
         .then(html => {
             sidebarContainer.innerHTML = html;
             setupNavigation();
-            setupHamburgerMenu();
-            setupThemeSwitcher(); // Add this call
-            setupClearAllDataButton(); // Setup the new clear all data button
 
             const firstLink = document.querySelector('#sidebarContainer .sidebar-link');
             if (firstLink) {
@@ -85,6 +99,7 @@ function setupNavigation() {
             links.forEach(l => l.classList.remove('active'));
             this.classList.add('active');
 
+            // Always close sidebar on mobile when a link is clicked
             if (window.innerWidth < 769) {
                 document.body.classList.remove('sidebar-open');
             }
@@ -170,6 +185,13 @@ function loadChartContent(chartHtmlFile, containerId, chartJsFile, onProcessedCa
                                 calculateVacationHomeFinances(); // Initial calculation
                                 console.log('calculateVacationHomeFinances called.');
                             }
+                        } else if (chartJsFile.includes('property_transfer_calculator.js') && typeof initPropertyTransferCalculator === 'function') {
+                            initPropertyTransferCalculator();
+                            console.log('initPropertyTransferCalculator called.');
+                        } else if (chartJsFile.includes('house_purchase_calculator.js') && typeof calculateAll === 'function') {
+                            // This calculator initializes itself, so no explicit call needed here,
+                            // but we can log that its script is loaded and ready.
+                            console.log('house_purchase_calculator.js loaded and ready.');
                         }
                         // Add similar checks for other chart initializers if they are refactored
                         // to use explicit init functions.
@@ -239,7 +261,9 @@ function setupClearAllDataButton() {
                     'expensesCalculatorProjectionYears',
                     'freetimeCalculatorInputs',
                     'trueCostCalculatorInputs',
-                    'vacationHomeCalculatorInputs'
+                    'vacationHomeCalculatorInputs',
+                    'propertyTransferCalculatorInputs',
+                    'housePurchaseCalculatorInputs'
                     // Add any other keys if new calculators are added
                 ];
                 keysToRemove.forEach(key => {
