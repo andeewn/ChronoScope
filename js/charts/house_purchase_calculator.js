@@ -84,7 +84,8 @@
             kostnad_bankavgifter: parseFloat(document.getElementById('hpc-bank-fees').value),
             kostnad_flytt_och_städ: parseFloat(document.getElementById('hpc-moving-cost').value),
             antagenÅrligVärdeökningProcent: parseFloat(document.getElementById('hpc-value-increase').value),
-            antalÅrFörPrognos: parseInt(document.getElementById('hpc-projection-years').value, 10)
+            antalÅrFörPrognos: parseInt(document.getElementById('hpc-projection-years').value, 10),
+            driftskostnadsökningProcent: parseFloat(document.getElementById('hpc-operating-cost-increase').value)
         };
 
         // A. Calculate one-time costs
@@ -194,8 +195,11 @@
         let aktuelltVärde = indata.köpeskilling;
         let aktuellSkuld = indata.köpeskilling * (indata.bolåneandelProcent / 100);
 
-        const fastighetsavgift_månad = Math.min(indata.köpeskilling * 0.0075, FASTIGHETSAVGIFT_MAX_ÅR) / 12;
-        const driftOchAvgifterMånad = indata.totalMånadsdrift + fastighetsavgift_månad;
+        // New logic for operating cost increase
+        const driftskostnadsökningFaktor = 1 + (indata.driftskostnadsökningProcent / 100);
+        let aktuellÅrligDriftskostnad = indata.totalMånadsdrift * 12; // Start with the initial annual cost
+
+        const fastighetsavgift_årlig = Math.min(indata.köpeskilling * 0.0075, FASTIGHETSAVGIFT_MAX_ÅR);
 
         for (let år = 1; år <= indata.antalÅrFörPrognos; år++) {
             // --- Cost calculations for the current year ---
@@ -211,11 +215,14 @@
             const årligAmorteringFörÅret = beräknaÅrligAmortering(aktuellSkuld, indata.köpeskilling, indata.hushålletsBruttoårsinkomst);
             const månatligAmortering = årligAmorteringFörÅret / 12;
 
+            // Calculate current year's operating cost
+            const totalDriftOchAvgifterMånad = (aktuellÅrligDriftskostnad + fastighetsavgift_årlig) / 12;
+
             kostnadsutveckling.push({
                 år: år,
                 nettoränta: månatligNettoräntekostnad,
                 amortering: månatligAmortering,
-                drift: driftOchAvgifterMånad,
+                drift: totalDriftOchAvgifterMånad,
                 underhåll: 0 // This is now part of dynamic costs
             });
 
@@ -233,6 +240,9 @@
                 årligAmortering: Math.round(årligAmorteringFörÅret),
                 nettoförmögenhetIBoendet: Math.round(nettoförmögenhet)
             });
+
+            // --- Update operating cost for the NEXT year ---
+            aktuellÅrligDriftskostnad *= driftskostnadsökningFaktor;
         }
         return { prognosLista, kostnadsutveckling };
     }

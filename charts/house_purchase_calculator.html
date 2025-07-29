@@ -73,8 +73,13 @@
                     <!-- Fylls i av JavaScript -->
                 </tbody>
             </table>
-            <p style="margin-top: 10px; font-weight: bold;">Total årlig driftskostnad: <span id="hpc-total-annual-operating-cost">0 kr</span></p>
-            <p style="margin-top: 5px; font-weight: bold;">Motsvarande månadskostnad: <span id="hpc-total-monthly-operating-cost">0 kr</span></p>
+            <hr style="margin-top: 20px; margin-bottom: 10px;">
+            <div class="input-group">
+                <label for="hpc-operating-cost-increase">Årlig kostnadsökning (%)</label>
+                <input type="number" id="hpc-operating-cost-increase" value="2.0" step="0.1">
+            </div>
+            <p style="margin-top: 20px; font-weight: bold;">Total årlig driftskostnad (år 1): <span id="hpc-total-annual-operating-cost">0 kr</span></p>
+            <p style="margin-top: 5px; font-weight: bold;">Motsvarande månadskostnad (år 1): <span id="hpc-total-monthly-operating-cost">0 kr</span></p>
         </div>
 
         <!-- Avsnitt 4: Engångskostnader -->
