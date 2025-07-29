@@ -433,8 +433,16 @@
         const cost = parseFormattedNumber(expenseCostEl.value);
         const occurrence = expenseOccurrenceEl.value;
 
-        if (!name || isNaN(cost) || cost <= 0) {
-            alert('Vänligen fyll i ett giltigt namn och en positiv kostnad.');
+        if (!name) {
+            alert('Vänligen fyll i ett giltigt namn på kostnaden.');
+            return;
+        }
+        if (isNaN(cost) || cost <= 0) {
+            alert('Vänligen fyll i en positiv siffra för kostnaden.');
+            return;
+        }
+        if (!occurrence) {
+            alert('Vänligen välj ett intervall för kostnaden.');
             return;
         }
 
@@ -442,6 +450,13 @@
 
         if (editingExpenseId !== null) {
             const expense = operatingExpenses.find(exp => exp.id === editingExpenseId);
+            if (!expense) {
+                alert('Kostnaden kunde inte hittas för uppdatering. Försök igen.');
+                editingExpenseId = null;
+                addExpenseBtn.textContent = 'Lägg till kostnad';
+                resetExpenseForm();
+                return;
+            }
             expense.name = name;
             expense.cost = cost;
             expense.occurrence = occurrence;
@@ -500,18 +515,30 @@
         currentExpensesTableBodyEl.innerHTML = '';
         let totalAnnual = 0;
 
+        // Helper to escape text for textContent
+        function createCell(row, text) {
+            const cell = row.insertCell();
+            cell.textContent = text;
+        }
+
         operatingExpenses.forEach(exp => {
             const row = currentExpensesTableBodyEl.insertRow();
-            row.innerHTML = `
-                <td>${exp.name}</td>
-                <td>${formatCurrency(exp.cost)}</td>
-                <td>${exp.occurrence.charAt(0).toUpperCase() + exp.occurrence.slice(1)}</td>
-                <td>${formatCurrency(exp.annualCost)}</td>
-                <td>
-                    <button class="hpc-edit-btn" data-id="${exp.id}">✏️</button>
-                    <button class="hpc-remove-btn" data-id="${exp.id}">❌</button>
-                </td>
-            `;
+            createCell(row, exp.name); // Safe: textContent escapes
+            createCell(row, formatCurrency(exp.cost));
+            createCell(row, exp.occurrence.charAt(0).toUpperCase() + exp.occurrence.slice(1));
+            createCell(row, formatCurrency(exp.annualCost));
+            // Action buttons
+            const actionCell = row.insertCell();
+            const editBtn = document.createElement('button');
+            editBtn.className = 'hpc-edit-btn';
+            editBtn.dataset.id = exp.id;
+            editBtn.textContent = '✏️';
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'hpc-remove-btn';
+            removeBtn.dataset.id = exp.id;
+            removeBtn.textContent = '❌';
+            actionCell.appendChild(editBtn);
+            actionCell.appendChild(removeBtn);
             totalAnnual += exp.annualCost;
         });
 
@@ -520,14 +547,31 @@
     }
 
     function saveExpensesToLocalStorage() {
-        localStorage.setItem(LOCAL_STORAGE_KEY_HPC_EXPENSES, JSON.stringify(operatingExpenses));
+        try {
+            localStorage.setItem(LOCAL_STORAGE_KEY_HPC_EXPENSES, JSON.stringify(operatingExpenses));
+        } catch (e) {
+            console.error('Kunde inte spara kostnader till localStorage:', e);
+            // Optionally show a user message here
+        }
     }
 
     function loadExpensesFromLocalStorage() {
-        const saved = localStorage.getItem(LOCAL_STORAGE_KEY_HPC_EXPENSES);
+        let saved = null;
+        try {
+            saved = localStorage.getItem(LOCAL_STORAGE_KEY_HPC_EXPENSES);
+        } catch (e) {
+            console.error('Kunde inte läsa kostnader från localStorage:', e);
+            // Optionally show a user message here
+            return;
+        }
         if (saved) {
-            operatingExpenses = JSON.parse(saved);
-            updateExpensesDisplay();
+            try {
+                operatingExpenses = JSON.parse(saved);
+                updateExpensesDisplay();
+            } catch (e) {
+                console.error('Fel vid tolkning av sparade kostnader:', e);
+                // Optionally show a user message here
+            }
         }
     }
 
